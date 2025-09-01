@@ -1,0 +1,239 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap");
+
+/* CSS Variables for Theme System */
+:root {
+  /* Dark Theme (Default) */
+  --bg-primary: #111827; /* gray-900 */
+  --bg-secondary: #1f2937; /* gray-800 */
+  --bg-tertiary: #374151; /* gray-700 */
+  --bg-glass: rgba(31, 41, 55, 0.5); /* gray-800/50 */
+  --bg-gradient-start: #111827; /* gray-900 */
+  --bg-gradient-via: #1f2937; /* gray-800 */
+  --bg-gradient-end: #000000; /* black */
+
+  --text-primary: #ffffff; /* white */
+  --text-secondary: #d1d5db; /* gray-300 */
+  --text-tertiary: #9ca3af; /* gray-400 */
+
+  --border-primary: #4b5563; /* gray-600 */
+  --border-secondary: #6b7280; /* gray-500 */
+  --border-tertiary: #374151; /* gray-700 */
+
+  --accent-blue: #3b82f6; /* blue-500 */
+  --accent-cyan: #06b6d4; /* cyan-500 */
+  --accent-blue-light: #60a5fa; /* blue-400 */
+  --accent-cyan-light: #22d3ee; /* cyan-400 */
+
+  --shadow-blue: rgba(59, 130, 246, 0.5); /* blue-500/50 */
+  --shadow-cyan: rgba(6, 182, 212, 0.5); /* cyan-500/50 */
+  --shadow-white: rgba(255, 255, 255, 0.2); /* white/20 */
+
+  --logo-filter: brightness(0) invert(1); /* Make logo white in dark mode */
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-primary: #f9fafb; /* gray-50 */
+  --bg-secondary: #ffffff; /* white */
+  --bg-tertiary: #f3f4f6; /* gray-100 */
+  --bg-glass: rgba(255, 255, 255, 0.8); /* white/80 */
+  --bg-gradient-start: #f9fafb; /* gray-50 */
+  --bg-gradient-via: #ffffff; /* white */
+  --bg-gradient-end: #f3f4f6; /* gray-100 */
+
+  --text-primary: #111827; /* gray-900 */
+  --text-secondary: #374151; /* gray-700 */
+  --text-tertiary: #6b7280; /* gray-500 */
+
+  --border-primary: #d1d5db; /* gray-300 */
+  --border-secondary: #9ca3af; /* gray-400 */
+  --border-tertiary: #e5e7eb; /* gray-200 */
+
+  --accent-blue: #2563eb; /* blue-600 */
+  --accent-cyan: #0891b2; /* cyan-600 */
+  --accent-blue-light: #3b82f6; /* blue-500 */
+  --accent-cyan-light: #06b6d4; /* cyan-500 */
+
+  --shadow-blue: rgba(37, 99, 235, 0.3); /* blue-600/30 */
+  --shadow-cyan: rgba(8, 145, 178, 0.3); /* cyan-600/30 */
+  --shadow-white: rgba(0, 0, 0, 0.1); /* black/10 */
+
+  --logo-filter: brightness(0); /* Make logo black in light mode */
+}
+
+body {
+  font-family: "Orbitron", monospace;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Force SVG sizing */
+img[src$=".svg"] {
+  display: block;
+}
+
+/* Theme-aware utility classes */
+.bg-theme-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.bg-theme-glass {
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(12px);
+}
+
+.bg-theme-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--bg-gradient-start) 0%,
+    var(--bg-gradient-via) 50%,
+    var(--bg-gradient-end) 100%
+  );
+}
+
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+.text-theme-tertiary {
+  color: var(--text-tertiary);
+}
+
+.border-theme-primary {
+  border-color: var(--border-primary);
+}
+
+.border-theme-secondary {
+  border-color: var(--border-secondary);
+}
+
+.border-theme-tertiary {
+  border-color: var(--border-tertiary);
+}
+
+.theme-logo-filter {
+  filter: var(--logo-filter);
+}
+
+/* Button theme variants */
+.btn-theme-primary {
+  background: linear-gradient(
+    135deg,
+    var(--accent-blue) 0%,
+    var(--accent-cyan) 100%
+  );
+  color: var(--text-primary);
+  box-shadow: 0 4px 14px 0 var(--shadow-blue);
+}
+
+.btn-theme-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--accent-blue-light) 0%,
+    var(--accent-cyan-light) 100%
+  );
+  box-shadow: 0 6px 20px 0 var(--shadow-blue);
+}
+
+.btn-theme-secondary {
+  background: transparent;
+  border: 2px solid var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.btn-theme-secondary:hover {
+  background: var(--accent-blue);
+  color: var(--bg-primary);
+}
+
+.btn-theme-glass {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  backdrop-filter: blur(12px);
+}
+
+.btn-theme-glass:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-blue);
+  box-shadow: 0 4px 14px 0 var(--shadow-white);
+}
+
+/* Input theme variants */
+.input-theme-primary {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+}
+
+.input-theme-primary:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--shadow-blue);
+  outline: none;
+}
+
+.input-theme-primary::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Card theme variants */
+.card-theme-glass {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-tertiary);
+  backdrop-filter: blur(12px);
+}
+
+.card-theme-glass:hover {
+  border-color: var(--accent-blue);
+  box-shadow: 0 8px 32px 0 var(--shadow-blue);
+}
+
+/* Toggle switch theme */
+.toggle-theme {
+  background: var(--bg-tertiary);
+}
+
+.toggle-theme:hover {
+  background: var(--border-primary);
+}
+
+.toggle-theme-handle {
+  background: linear-gradient(
+    135deg,
+    var(--accent-blue) 0%,
+    var(--accent-cyan) 100%
+  );
+  box-shadow: 0 2px 8px 0 var(--shadow-blue);
+}
+
+/* Progress bar theme */
+.progress-theme-bg {
+  background: var(--bg-tertiary);
+}
+
+.progress-theme-fill-blue {
+  background: linear-gradient(
+    90deg,
+    var(--accent-blue) 0%,
+    var(--accent-cyan) 100%
+  );
+}
+
+/* Theme transition for smooth switching */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease, box-shadow 0.3s ease;
+}
