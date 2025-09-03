@@ -1,9 +1,9 @@
 // src/components/Content.tsx
 
-import { useState } from "react";
-import UIButton from "./ui/UIButton";
-import UIToggle from "./ui/UIToggle";
-import UITextField from "./ui/UITextField";
+import { useState } from 'react';
+import UIButton from './ui/UIButton';
+import UIToggle from './ui/UIToggle';
+import UITextField from './ui/UITextField';
 import {
   buttonExamples,
   additionalButtonExamples,
@@ -12,9 +12,9 @@ import {
   handleButtonClick,
   handleToggleChange,
   handleInputChange,
-} from "../data/config";
-import { ToggleCallback, InputCallback } from "../data/interfaces";
-import { getToggleIcons, getInputIcons } from "../data/icons";
+} from '../data/config';
+import { ToggleCallback, InputCallback } from '../types/interfaces';
+import { getToggleIcons, getInputIcons } from '../data/icons';
 
 const Content = () => {
   // State to track all toggle states
@@ -22,13 +22,13 @@ const Content = () => {
     () => {
       // Initialize with default states from toggleExamples
       const initialStates: Record<string, boolean> = {};
-      toggleExamples.forEach((toggle) => {
+      toggleExamples.forEach(toggle => {
         initialStates[toggle.id] = toggle.checked;
       });
       // Add the demo toggles
-      initialStates["toggle-small-demo"] = true;
-      initialStates["toggle-medium-demo"] = true;
-      initialStates["toggle-large-demo"] = true;
+      initialStates['toggle-small-demo'] = true;
+      initialStates['toggle-medium-demo'] = true;
+      initialStates['toggle-large-demo'] = true;
       return initialStates;
     }
   );
@@ -40,7 +40,7 @@ const Content = () => {
     event
   ) => {
     // Update local state
-    setToggleStates((prev) => ({
+    setToggleStates(prev => ({
       ...prev,
       [toggleData.id]: checked,
     }));
@@ -52,8 +52,8 @@ const Content = () => {
   // State to track input field values
   const [inputValues, setInputValues] = useState<Record<string, string>>(() => {
     const initialValues: Record<string, string> = {};
-    textFieldExamples.forEach((input) => {
-      initialValues[input.id] = input.value || "";
+    textFieldExamples.forEach(input => {
+      initialValues[input.id] = input.value || '';
     });
     return initialValues;
   });
@@ -61,7 +61,7 @@ const Content = () => {
   // Custom input handler that updates state
   const handleInputStateChange: InputCallback = (inputData, value, event) => {
     // Update local state
-    setInputValues((prev) => ({
+    setInputValues(prev => ({
       ...prev,
       [inputData.id]: value,
     }));
@@ -80,7 +80,7 @@ const Content = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {buttonExamples.map((buttonData) => (
+            {buttonExamples.map(buttonData => (
               <UIButton
                 key={buttonData.id}
                 data={buttonData}
@@ -95,7 +95,7 @@ const Content = () => {
               Additional States & Sizes
             </h3>
             <div className="flex flex-wrap gap-4 justify-center">
-              {additionalButtonExamples.map((buttonData) => (
+              {additionalButtonExamples.map(buttonData => (
                 <UIButton
                   key={buttonData.id}
                   data={buttonData}
@@ -123,11 +123,11 @@ const Content = () => {
                 <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
                 <div
                   className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"
-                  style={{ animationDelay: "0.5s" }}
+                  style={{ animationDelay: '0.5s' }}
                 ></div>
                 <div
                   className="w-3 h-3 bg-blue-300 rounded-full animate-pulse"
-                  style={{ animationDelay: "1s" }}
+                  style={{ animationDelay: '1s' }}
                 ></div>
               </div>
             </div>
@@ -175,7 +175,7 @@ const Content = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {textFieldExamples.map((inputData) => (
+            {textFieldExamples.map(inputData => (
               <UITextField
                 key={inputData.id}
                 data={{
@@ -197,33 +197,33 @@ const Content = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <UITextField
                 data={{
-                  id: "demo-primary",
-                  variant: "primary",
-                  type: "text",
-                  placeholder: "Primary style",
-                  label: "Primary",
+                  id: 'demo-primary',
+                  variant: 'primary',
+                  type: 'text',
+                  placeholder: 'Primary style',
+                  label: 'Primary',
                 }}
                 onChange={handleInputStateChange}
                 showLabel={true}
               />
               <UITextField
                 data={{
-                  id: "demo-glass",
-                  variant: "glass",
-                  type: "text",
-                  placeholder: "Glass style",
-                  label: "Glass",
+                  id: 'demo-glass',
+                  variant: 'glass',
+                  type: 'text',
+                  placeholder: 'Glass style',
+                  label: 'Glass',
                 }}
                 onChange={handleInputStateChange}
                 showLabel={true}
               />
               <UITextField
                 data={{
-                  id: "demo-outline",
-                  variant: "outline",
-                  type: "text",
-                  placeholder: "Outline style",
-                  label: "Outline",
+                  id: 'demo-outline',
+                  variant: 'outline',
+                  type: 'text',
+                  placeholder: 'Outline style',
+                  label: 'Outline',
                 }}
                 onChange={handleInputStateChange}
                 showLabel={true}
@@ -239,7 +239,7 @@ const Content = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {toggleExamples.map((toggleData) => (
+            {toggleExamples.map(toggleData => (
               <UIToggle
                 key={toggleData.id}
                 data={{
@@ -261,33 +261,33 @@ const Content = () => {
             <div className="flex flex-wrap gap-6 justify-center items-center">
               <UIToggle
                 data={{
-                  id: "toggle-small-demo",
-                  label: "Small",
-                  checked: toggleStates["toggle-small-demo"] ?? true,
-                  variant: "primary",
-                  size: "small",
+                  id: 'toggle-small-demo',
+                  label: 'Small',
+                  checked: toggleStates['toggle-small-demo'] ?? true,
+                  variant: 'primary',
+                  size: 'small',
                 }}
                 onChange={handleToggleStateChange}
                 showLabel={true}
               />
               <UIToggle
                 data={{
-                  id: "toggle-medium-demo",
-                  label: "Medium",
-                  checked: toggleStates["toggle-medium-demo"] ?? true,
-                  variant: "success",
-                  size: "medium",
+                  id: 'toggle-medium-demo',
+                  label: 'Medium',
+                  checked: toggleStates['toggle-medium-demo'] ?? true,
+                  variant: 'success',
+                  size: 'medium',
                 }}
                 onChange={handleToggleStateChange}
                 showLabel={true}
               />
               <UIToggle
                 data={{
-                  id: "toggle-large-demo",
-                  label: "Large",
-                  checked: toggleStates["toggle-large-demo"] ?? true,
-                  variant: "custom",
-                  size: "large",
+                  id: 'toggle-large-demo',
+                  label: 'Large',
+                  checked: toggleStates['toggle-large-demo'] ?? true,
+                  variant: 'custom',
+                  size: 'large',
                 }}
                 onChange={handleToggleStateChange}
                 showLabel={true}

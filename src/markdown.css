@@ -1,0 +1,315 @@
+/* Unified Markdown styles for both Viewer and Editor */
+/* All markdown-related styling consolidated here */
+
+/* Base prose styling */
+.markdown-content {
+  @apply prose prose-gray dark:prose-invert max-w-none prose-lg;
+}
+
+/* Typography improvements */
+.markdown-content {
+  /* Headings - reduce margins significantly and add progressive indentation */
+  @apply prose-headings:font-semibold prose-headings:text-gray-900 dark:prose-headings:text-gray-100;
+  @apply prose-h1:text-3xl prose-h1:mb-3 prose-h1:mt-6 prose-h1:border-b prose-h1:border-gray-200 dark:prose-h1:border-gray-700 prose-h1:pb-2;
+  @apply prose-h2:text-2xl prose-h2:mb-2 prose-h2:mt-4;
+  @apply prose-h3:text-xl prose-h3:mb-1 prose-h3:mt-3;
+  @apply prose-h4:text-lg prose-h4:mb-1 prose-h4:mt-2;
+}
+
+/* Progressive header indentation */
+.markdown-content h1 {
+  padding-left: 0; /* No indent for H1 */
+}
+
+.markdown-content h2 {
+  padding-left: 0.75rem; /* Small indent for H2 */
+}
+
+.markdown-content h3 {
+  padding-left: 1.5rem; /* Double the H2 indent for H3 */
+}
+
+.markdown-content h4 {
+  padding-left: 2.25rem; /* Progressive indent for H4 */
+}
+
+.markdown-content h5 {
+  padding-left: 3rem; /* Progressive indent for H5 */
+}
+
+.markdown-content h6 {
+  padding-left: 3.75rem; /* Progressive indent for H6 */
+}
+
+/* Content indentation will be handled by JavaScript */
+
+.markdown-content {
+  
+  /* Anchor links for headers */
+  h1:hover .anchor-link,
+  h2:hover .anchor-link,
+  h3:hover .anchor-link,
+  h4:hover .anchor-link,
+  h5:hover .anchor-link,
+  h6:hover .anchor-link {
+    @apply opacity-100;
+  }
+  
+  .anchor-link {
+    @apply text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300;
+    @apply no-underline opacity-0;
+    @apply transition-opacity duration-200;
+    @apply ml-2 text-sm;
+  }
+  
+  /* Paragraphs - reduce line height and bottom margin */
+  @apply prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-normal prose-p:mb-2;
+  
+  /* Lists - reduce spacing between items */
+  @apply prose-ul:my-2 prose-ol:my-2;
+  @apply prose-li:my-0 prose-li:leading-normal prose-li:mb-1;
+}
+
+/* Additional custom spacing overrides */
+.markdown-content ul li {
+  margin-bottom: 0.25rem; /* 25% more than paragraph spacing (0.2rem) */
+  line-height: 1.4; /* Slightly tighter than normal */
+}
+
+.markdown-content ol li {
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.markdown-content p {
+  line-height: 1.4; /* 50% less than relaxed (1.625) */
+  margin-bottom: 0.75rem; /* Reduced paragraph spacing */
+  margin-top: 0; /* Remove top margin */
+}
+
+/* Reduce space between headers and immediately following content */
+.markdown-content h1 + p,
+.markdown-content h2 + p,
+.markdown-content h3 + p,
+.markdown-content h4 + p,
+.markdown-content h5 + p,
+.markdown-content h6 + p {
+  margin-top: 0.25rem; /* Very tight spacing after headers */
+}
+
+.markdown-content h1 + ul,
+.markdown-content h2 + ul,
+.markdown-content h3 + ul,
+.markdown-content h4 + ul,
+.markdown-content h5 + ul,
+.markdown-content h6 + ul,
+.markdown-content h1 + ol,
+.markdown-content h2 + ol,
+.markdown-content h3 + ol,
+.markdown-content h4 + ol,
+.markdown-content h5 + ol,
+.markdown-content h6 + ol {
+  margin-top: 0.25rem; /* Tight spacing between headers and lists */
+}
+
+.markdown-content {
+  /* Links */
+  @apply prose-a:text-primary-600 hover:prose-a:text-primary-700 dark:prose-a:text-primary-400 dark:hover:prose-a:text-primary-300;
+  @apply prose-a:font-medium prose-a:no-underline hover:prose-a:underline;
+  
+  /* Strong text */
+  @apply prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold;
+  
+  /* Emphasis */
+  @apply prose-em:text-gray-800 dark:prose-em:text-gray-200 prose-em:italic;
+  
+  /* Lists */
+  @apply prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-li:mb-1;
+  @apply prose-ul:my-4 prose-ol:my-4;
+  @apply prose-ul:pl-6 prose-ol:pl-6;
+}
+
+/* Code styling */
+.markdown-content {
+  /* Inline code */
+  @apply prose-code:text-pink-600 dark:prose-code:text-pink-400;
+  @apply prose-code:bg-gray-100 dark:prose-code:bg-gray-800;
+  @apply prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono;
+  @apply prose-code:before:content-none prose-code:after:content-none;
+  
+  /* Code blocks */
+  @apply prose-pre:bg-gray-900 dark:prose-pre:bg-gray-800;
+  @apply prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:p-4;
+  @apply prose-pre:text-sm prose-pre:font-mono;
+  @apply prose-pre:border prose-pre:border-gray-700 dark:prose-pre:border-gray-600;
+}
+
+/* Code within pre blocks */
+.markdown-content pre {
+  overflow-x: visible; /* Remove horizontal scroll */
+  white-space: pre-wrap; /* Enable wrapping while preserving formatting */
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-0 text-inherit;
+  white-space: pre-wrap; /* Enable wrapping in code blocks */
+  word-break: break-word; /* Break long words if necessary */
+}
+
+/* Blockquotes */
+.markdown-content {
+  @apply prose-blockquote:border-l-4 prose-blockquote:border-primary-500;
+  @apply prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800;
+  @apply prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300;
+  @apply prose-blockquote:pl-6 prose-blockquote:py-3 prose-blockquote:my-6;
+  @apply prose-blockquote:italic prose-blockquote:rounded-r-lg;
+  @apply prose-blockquote:not-italic;
+}
+
+/* Tables */
+.markdown-content {
+  @apply prose-table:text-sm prose-table:border-collapse prose-table:w-full prose-table:my-6;
+  @apply prose-th:bg-gray-50 dark:prose-th:bg-gray-800 prose-th:font-semibold prose-th:text-left;
+  @apply prose-th:px-4 prose-th:py-3 prose-th:border prose-th:border-gray-200 dark:prose-th:border-gray-700;
+  @apply prose-td:px-4 prose-td:py-3 prose-td:border prose-td:border-gray-200 dark:prose-td:border-gray-700;
+  @apply prose-tr:hover:bg-gray-50 dark:prose-tr:hover:bg-gray-800;
+}
+
+/* Images */
+.markdown-content {
+  @apply prose-img:rounded-lg prose-img:shadow-md prose-img:my-6;
+  @apply prose-img:border prose-img:border-gray-200 dark:prose-img:border-gray-700;
+  @apply prose-img:max-w-full prose-img:h-auto;
+}
+
+/* Horizontal rules */
+.markdown-content {
+  @apply prose-hr:border-gray-300 dark:prose-hr:border-gray-600 prose-hr:my-8;
+  @apply prose-hr:border-t-2;
+}
+
+/* Task lists (checkboxes) */
+.markdown-content input[type="checkbox"] {
+  @apply mr-2 scale-110;
+  accent-color: theme('colors.primary.600');
+}
+
+.markdown-content li {
+  @apply marker:text-gray-400 dark:marker:text-gray-500;
+}
+
+/* Task list items without bullets */
+.markdown-content .contains-task-list {
+  @apply list-none ml-0;
+}
+
+/* Custom scrollbar for markdown content */
+.markdown-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.markdown-content::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.markdown-content::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded;
+}
+
+.markdown-content::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* CodeMirror Editor Styles - Unified with Viewer */
+.cm-editor {
+  height: 100%;
+  width: 100%;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+}
+
+.cm-content {
+  padding: 16px;
+  min-height: 100%;
+  width: 100%;
+  font-family: inherit;
+  /* Light theme by default */
+  background-color: #ffffff;
+  color: #111827;
+}
+
+/* Dark theme override */
+.dark .cm-content {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+.cm-focused {
+  outline: none;
+}
+
+.cm-scroller {
+  font-family: inherit;
+  overflow: auto;
+  width: 100%;
+}
+
+.cm-line {
+  line-height: 1.6;
+}
+
+/* Light theme syntax highlighting */
+.cm-keyword { color: #d73a49; }
+.cm-string { color: #032f62; }
+.cm-comment { color: #6a737d; font-style: italic; }
+.cm-number { color: #005cc5; }
+.cm-operator { color: #d73a49; }
+.cm-punctuation { color: #6f42c1; }
+.cm-meta { color: #735c0f; }
+.cm-link { color: #005cc5; text-decoration: underline; }
+.cm-tag { color: #22863a; }
+.cm-attribute { color: #6f42c1; }
+.cm-variable { color: #e36209; }
+.cm-header { color: #005cc5; font-weight: bold; }
+.cm-quote { color: #6a737d; font-style: italic; }
+.cm-list { color: #d73a49; }
+.cm-hr { color: #6a737d; }
+.cm-strong { font-weight: bold; }
+.cm-em { font-style: italic; }
+
+/* Dark theme syntax highlighting */
+
+.dark .cm-keyword { color: #ff7b72; }
+.dark .cm-string { color: #a5d6ff; }
+.dark .cm-comment { color: #8b949e; font-style: italic; }
+.dark .cm-number { color: #79c0ff; }
+.dark .cm-operator { color: #ff7b72; }
+.dark .cm-punctuation { color: #f0f6fc; }
+.dark .cm-meta { color: #ffa657; }
+.dark .cm-link { color: #58a6ff; text-decoration: underline; }
+.dark .cm-tag { color: #7ee787; }
+.dark .cm-attribute { color: #f0f6fc; }
+.dark .cm-variable { color: #ffa657; }
+.dark .cm-header { color: #1f6feb; font-weight: bold; }
+.dark .cm-quote { color: #8b949e; font-style: italic; }
+.dark .cm-list { color: #ff7b72; }
+.dark .cm-hr { color: #8b949e; }
+.dark .cm-strong { font-weight: bold; }
+.dark .cm-em { font-style: italic; }
+
+/* Direct theme styling - no CSS variables to avoid conflicts */
+
+/* Print styles */
+@media print {
+  .markdown-content {
+    @apply text-black;
+  }
+  
+  .markdown-content pre {
+    @apply bg-gray-100 text-black border border-gray-300;
+  }
+  
+  .markdown-content code {
+    @apply bg-gray-100 text-black;
+  }
+}
