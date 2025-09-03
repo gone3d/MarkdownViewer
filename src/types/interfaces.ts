@@ -2,17 +2,17 @@
 
 // Button Types and Variants
 export type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "danger"
-  | "glass"
-  | "outline"
-  | "icon";
-export type ButtonSize = "small" | "medium" | "large";
+  | 'primary'
+  | 'secondary'
+  | 'danger'
+  | 'glass'
+  | 'outline'
+  | 'icon';
+export type ButtonSize = 'small' | 'medium' | 'large';
 
 // Icon configuration
 export interface IconConfig {
-  type: "dot" | "custom"; // dot for simple colored circles, custom for SVG/other
+  type: 'dot' | 'custom'; // dot for simple colored circles, custom for SVG/other
   color?: string;
   size?: string;
   content?: React.ReactNode; // For custom icons like SVG
@@ -38,8 +38,8 @@ export type ButtonCallback = (
 ) => void;
 
 // Input Types
-export type InputVariant = "primary" | "glass" | "outline";
-export type InputType = "text" | "password" | "email" | "search" | "number";
+export type InputVariant = 'primary' | 'glass' | 'outline';
+export type InputType = 'text' | 'password' | 'email' | 'search' | 'number';
 
 export interface InputData {
   id: string;
@@ -67,8 +67,8 @@ export interface ToggleData {
   label: string;
   checked: boolean;
   disabled?: boolean;
-  variant?: "primary" | "success" | "custom";
-  size?: "small" | "medium" | "large";
+  variant?: 'primary' | 'success' | 'custom';
+  size?: 'small' | 'medium' | 'large';
   className?: string;
   metadata?: Record<string, unknown>;
 }
@@ -80,7 +80,7 @@ export type ToggleCallback = (
 ) => void;
 
 // Card Types
-export type CardVariant = "glass" | "solid" | "gradient";
+export type CardVariant = 'glass' | 'solid' | 'gradient';
 
 export interface CardData {
   id: string;
@@ -105,8 +105,8 @@ export interface ProgressData {
   label: string;
   value: number; // 0-100
   max?: number;
-  variant?: "blue" | "green" | "red" | "yellow" | "custom";
-  size?: "small" | "medium" | "large";
+  variant?: 'blue' | 'green' | 'red' | 'yellow' | 'custom';
+  size?: 'small' | 'medium' | 'large';
   animated?: boolean;
   showValue?: boolean;
   className?: string;
@@ -114,7 +114,7 @@ export interface ProgressData {
 }
 
 // Theme Types
-export type ThemeMode = "light" | "dark";
+export type ThemeMode = 'light' | 'dark';
 
 export interface ThemeConfig {
   mode: ThemeMode;
@@ -134,7 +134,7 @@ export interface BaseUIProps {
 // Status Types for System Monitoring
 export interface SystemStatus {
   component: string;
-  status: "online" | "offline" | "warning" | "error";
+  status: 'online' | 'offline' | 'warning' | 'error';
   value?: number;
   max?: number;
   unit?: string;

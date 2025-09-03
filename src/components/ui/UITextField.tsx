@@ -1,7 +1,7 @@
 // src/components/ui/UITextField.tsx
 
-import React, { useState, useRef, useEffect } from "react";
-import { InputData, InputCallback } from "../../data/interfaces";
+import React, { useState, useRef, useEffect } from 'react';
+import { InputData, InputCallback } from '../../types/interfaces';
 
 interface UITextFieldProps {
   data: InputData;
@@ -25,12 +25,12 @@ const UITextField: React.FC<UITextFieldProps> = ({
   onKeyDown,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [internalValue, setInternalValue] = useState(data.value || "");
+  const [internalValue, setInternalValue] = useState(data.value || '');
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Update internal value when data.value changes
   useEffect(() => {
-    setInternalValue(data.value || "");
+    setInternalValue(data.value || '');
   }, [data.value]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,13 +51,13 @@ const UITextField: React.FC<UITextFieldProps> = ({
 
   const getVariantClasses = () => {
     const baseClasses =
-      "w-full px-4 py-3 rounded-full transition-all duration-300 focus:outline-none";
+      'w-full px-4 py-3 rounded-full transition-all duration-300 focus:outline-none';
 
     switch (data.variant) {
-      case "glass":
+      case 'glass':
         return `${baseClasses} bg-transparent border-2 border-theme-primary text-theme-primary focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/20 placeholder-theme-tertiary`;
 
-      case "outline":
+      case 'outline':
         return `${baseClasses} bg-transparent border-2 border-theme-tertiary text-theme-primary focus:border-blue-400 focus:shadow-lg focus:shadow-blue-500/20 placeholder-theme-tertiary hover:border-theme-primary`;
 
       default: // primary
@@ -66,17 +66,17 @@ const UITextField: React.FC<UITextFieldProps> = ({
   };
 
   const getIconClasses = () => {
-    return "w-5 h-5 text-theme-tertiary transition-colors duration-300";
+    return 'w-5 h-5 text-theme-tertiary transition-colors duration-300';
   };
 
   const getFocusedIconClasses = () => {
     switch (data.variant) {
-      case "glass":
-        return isFocused ? "text-cyan-400" : "text-theme-tertiary";
-      case "outline":
-        return isFocused ? "text-blue-400" : "text-theme-tertiary";
+      case 'glass':
+        return isFocused ? 'text-cyan-400' : 'text-theme-tertiary';
+      case 'outline':
+        return isFocused ? 'text-blue-400' : 'text-theme-tertiary';
       default:
-        return isFocused ? "text-blue-400" : "text-theme-tertiary";
+        return isFocused ? 'text-blue-400' : 'text-theme-tertiary';
     }
   };
 
@@ -85,16 +85,16 @@ const UITextField: React.FC<UITextFieldProps> = ({
 
     // Adjust padding for icons
     if (leftIcon && rightIcon) {
-      classes = classes.replace("px-4", "px-12");
+      classes = classes.replace('px-4', 'px-12');
     } else if (leftIcon) {
-      classes = classes.replace("px-4", "pl-12 pr-4");
+      classes = classes.replace('px-4', 'pl-12 pr-4');
     } else if (rightIcon) {
-      classes = classes.replace("px-4", "pl-4 pr-12");
+      classes = classes.replace('px-4', 'pl-4 pr-12');
     }
 
     // Add disabled styles
     if (data.disabled) {
-      classes += " opacity-50 cursor-not-allowed";
+      classes += ' opacity-50 cursor-not-allowed';
     }
 
     return classes;
@@ -108,7 +108,7 @@ const UITextField: React.FC<UITextFieldProps> = ({
   };
 
   return (
-    <div className={`space-y-2 ${data.className || ""}`}>
+    <div className={`space-y-2 ${data.className || ''}`}>
       {/* Label */}
       {showLabel && data.label && (
         <label
@@ -147,7 +147,7 @@ const UITextField: React.FC<UITextFieldProps> = ({
           className={getInputClasses()}
           aria-label={data.label || data.placeholder}
           aria-required={data.required}
-          aria-invalid={data.metadata?.hasError ? "true" : "false"}
+          aria-invalid={data.metadata?.hasError ? 'true' : 'false'}
         />
 
         {/* Right Icon */}
@@ -160,7 +160,7 @@ const UITextField: React.FC<UITextFieldProps> = ({
         )}
 
         {/* Focus Ring for Glass Variant */}
-        {data.variant === "glass" && isFocused && (
+        {data.variant === 'glass' && isFocused && (
           <div className="absolute inset-0 rounded-full border-2 border-cyan-400/50 pointer-events-none animate-pulse"></div>
         )}
       </div>

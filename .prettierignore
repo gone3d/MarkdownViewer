@@ -1,0 +1,13 @@
+dist/
+node_modules/
+*.md
+!README.md
+.git/
+coverage/
+.next/
+.nuxt/
+.vuepress/dist/
+*.log
+*.lock
+package-lock.json
+yarn.lock

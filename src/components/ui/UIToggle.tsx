@@ -1,7 +1,7 @@
 // src/components/ui/UIToggle.tsx
 
-import React from "react";
-import { ToggleData, ToggleCallback } from "../../data/interfaces";
+import React from 'react';
+import { ToggleData, ToggleCallback } from '../../types/interfaces';
 
 interface UIToggleProps {
   data: ToggleData;
@@ -25,59 +25,59 @@ const UIToggle: React.FC<UIToggleProps> = ({
 
   const getSizeClasses = () => {
     switch (data.size) {
-      case "small":
+      case 'small':
         return {
-          track: "w-10 h-6",
-          handle: "w-4 h-4 top-1",
-          icon: "w-2.5 h-2.5",
-          translate: data.checked ? "translate-x-4" : "translate-x-1",
+          track: 'w-10 h-6',
+          handle: 'w-4 h-4 top-1',
+          icon: 'w-2.5 h-2.5',
+          translate: data.checked ? 'translate-x-4' : 'translate-x-1',
         };
-      case "large":
+      case 'large':
         return {
-          track: "w-16 h-10",
-          handle: "w-8 h-8 top-1",
-          icon: "w-4 h-4",
-          translate: data.checked ? "translate-x-7" : "translate-x-1",
+          track: 'w-16 h-10',
+          handle: 'w-8 h-8 top-1',
+          icon: 'w-4 h-4',
+          translate: data.checked ? 'translate-x-7' : 'translate-x-1',
         };
       default: // medium
         return {
-          track: "w-14 h-8",
-          handle: "w-6 h-6 top-1",
-          icon: "w-3 h-3",
-          translate: data.checked ? "translate-x-7" : "translate-x-1",
+          track: 'w-14 h-8',
+          handle: 'w-6 h-6 top-1',
+          icon: 'w-3 h-3',
+          translate: data.checked ? 'translate-x-7' : 'translate-x-1',
         };
     }
   };
 
   const getVariantClasses = () => {
     switch (data.variant) {
-      case "success":
+      case 'success':
         return {
           track: data.checked
-            ? "bg-gradient-to-r from-green-500 to-emerald-400"
-            : "toggle-theme",
+            ? 'bg-gradient-to-r from-green-500 to-emerald-400'
+            : 'toggle-theme',
           handle: data.checked
-            ? "bg-white shadow-lg shadow-green-500/50"
-            : "toggle-theme-handle",
+            ? 'bg-white shadow-lg shadow-green-500/50'
+            : 'toggle-theme-handle',
           glow: data.checked
-            ? "bg-gradient-to-r from-green-400/20 to-emerald-400/20"
-            : "",
+            ? 'bg-gradient-to-r from-green-400/20 to-emerald-400/20'
+            : '',
         };
-      case "custom":
+      case 'custom':
         return {
-          track: "toggle-theme",
-          handle: "toggle-theme-handle",
+          track: 'toggle-theme',
+          handle: 'toggle-theme-handle',
           glow: data.checked
-            ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20"
-            : "",
+            ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20'
+            : '',
         };
       default: // primary
         return {
-          track: "toggle-theme",
-          handle: "toggle-theme-handle",
+          track: 'toggle-theme',
+          handle: 'toggle-theme-handle',
           glow: data.checked
-            ? "bg-gradient-to-r from-blue-500/20 to-cyan-500/20"
-            : "",
+            ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20'
+            : '',
         };
     }
   };
@@ -92,7 +92,7 @@ const UIToggle: React.FC<UIToggleProps> = ({
   };
 
   return (
-    <div className={`flex items-center gap-3 ${data.className || ""}`}>
+    <div className={`flex items-center gap-3 ${data.className || ''}`}>
       {showLabel && data.label && (
         <span className="text-theme-secondary font-medium select-none">
           {data.label}
@@ -107,7 +107,7 @@ const UIToggle: React.FC<UIToggleProps> = ({
           disabled={data.disabled}
           onChange={handleToggle}
           className="sr-only"
-          aria-label={data.label || "Toggle"}
+          aria-label={data.label || 'Toggle'}
         />
 
         <label
@@ -115,7 +115,7 @@ const UIToggle: React.FC<UIToggleProps> = ({
           className={`
             relative ${sizeClasses.track} ${variantClasses.track} 
             rounded-full cursor-pointer transition-all duration-300 block
-            ${data.disabled ? "opacity-50 cursor-not-allowed" : ""}
+            ${data.disabled ? 'opacity-50 cursor-not-allowed' : ''}
             focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-transparent
           `}
         >
@@ -127,7 +127,7 @@ const UIToggle: React.FC<UIToggleProps> = ({
                 sizeClasses.translate
               }
               flex items-center justify-center
-              ${data.disabled ? "" : "hover:scale-105"}
+              ${data.disabled ? '' : 'hover:scale-105'}
             `}
           >
             {/* Icon inside handle */}

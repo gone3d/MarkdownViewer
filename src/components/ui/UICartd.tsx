@@ -2,8 +2,8 @@
 
 // Not really working at the moment, we'll need to make specific cards instead.
 
-import React from "react";
-import { CardData, CardCallback } from "../../data/interfaces";
+import React from 'react';
+import { CardData, CardCallback } from '../../types/interfaces';
 
 interface UICardProps {
   data: CardData;
@@ -25,23 +25,23 @@ const UICard: React.FC<UICardProps> = ({
   };
 
   // Base classes that apply to all cards
-  const baseClasses = "relative rounded-2xl p-6 transition-all duration-300";
+  const baseClasses = 'relative rounded-2xl p-6 transition-all duration-300';
 
   // Variant-specific classes
   const variantClasses = {
-    glass: "card-theme-glass",
-    solid: "bg-theme-secondary border border-theme-tertiary",
+    glass: 'card-theme-glass',
+    solid: 'bg-theme-secondary border border-theme-tertiary',
     gradient:
-      "bg-gradient-to-br from-theme-secondary to-theme-tertiary border border-theme-tertiary",
+      'bg-gradient-to-br from-theme-secondary to-theme-tertiary border border-theme-tertiary',
   };
 
   // Clickable classes
   const clickableClasses = data.clickable
-    ? "cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-    : "";
+    ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]'
+    : '';
 
   // Glow effect classes
-  const glowClasses = glowOnHover ? "group" : "";
+  const glowClasses = glowOnHover ? 'group' : '';
 
   // Combine all classes
   const cardClasses = [
@@ -49,8 +49,8 @@ const UICard: React.FC<UICardProps> = ({
     variantClasses[data.variant],
     clickableClasses,
     glowClasses,
-    data.className || "",
-  ].join(" ");
+    data.className || '',
+  ].join(' ');
 
   return (
     <div

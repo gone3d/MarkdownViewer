@@ -11,7 +11,7 @@ import {
   Moon,
   Sun,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Icon components using Lucide React
 export const icons = {
@@ -39,9 +39,9 @@ export const icons = {
 // Helper functions for getting icons by component ID
 export const getToggleIcons = (toggleId: string) => {
   switch (toggleId) {
-    case "toggle-notifications":
+    case 'toggle-notifications':
       return { iconRight: icons.bell };
-    case "toggle-sound":
+    case 'toggle-sound':
       return { iconRight: icons.sound };
     default:
       return {};
@@ -50,15 +50,15 @@ export const getToggleIcons = (toggleId: string) => {
 
 export const getInputIcons = (inputId: string) => {
   switch (inputId) {
-    case "input-username":
+    case 'input-username':
       return { leftIcon: icons.user };
-    case "input-password":
+    case 'input-password':
       return { leftIcon: icons.lock };
-    case "input-email":
+    case 'input-email':
       return { leftIcon: icons.email };
-    case "input-search":
+    case 'input-search':
       return { rightIcon: icons.search };
-    case "input-phone":
+    case 'input-phone':
       return { leftIcon: icons.phone };
     default:
       return {};

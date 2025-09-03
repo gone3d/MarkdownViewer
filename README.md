@@ -19,25 +19,28 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 ### Core Vision
 
 - **Effortless Markdown Management**: Make working with markdown files as simple as possible
-- **Professional Quality**: Senior-level code suitable for portfolio demonstration  
+- **Professional Quality**: Senior-level code suitable for portfolio demonstration
 - **Extensible Architecture**: Built to grow from basic viewing to advanced organization features
 - **Universal Access**: Works as both local desktop app and web server application
 
 ## Features
 
 ### Core Viewing Features
+
 - Render markdown files with proper styling
 - Support for standard GitHub Flavored Markdown syntax
 - Real-time preview capabilities
 - Responsive design for various screen sizes
 
-### Editing Features  
+### Editing Features
+
 - Syntax-highlighted markdown editor with CodeMirror 6
 - Live preview while editing with synchronized scrolling
 - Auto-save functionality
 - File management (create, rename, delete)
 
 ### Organization Features
+
 - File browser with tree-view folder navigation
 - Automatic table of contents generation for headers
 - Image, animation, and video asset management
@@ -47,18 +50,21 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 ## Technology Stack
 
 ### Frontend
+
 - **React 18** with TypeScript for robust UI development
 - **Vite** for fast development and optimized production builds
 - **Tailwind CSS** for utility-first styling with custom theme system
 - **CodeMirror 6** for advanced code editing capabilities
 
 ### Markdown Processing
+
 - **react-markdown** with remark/rehype plugin ecosystem
 - **remark-gfm** for GitHub Flavored Markdown support
 - **rehype-highlight** for syntax highlighting
 - **Prism.js** for code block highlighting
 
 ### File System & Search
+
 - **File System Access API** for native file operations (with fallbacks)
 - **Fuse.js** for fuzzy search capabilities
 - **Web Workers** for background search indexing
@@ -66,10 +72,12 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 ## Build Local
 
 ### Prerequisites
+
 - Node.js 18+ (LTS recommended)
 - npm 9+ or yarn 1.22+
 
 ### Setup
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -83,6 +91,7 @@ npm run dev
 ```
 
 ### Development Scripts
+
 ```bash
 # Start dev server with hot reload
 npm run dev
@@ -108,6 +117,7 @@ The development server will start at `http://localhost:5173` with hot module rep
 ## Build Prod
 
 ### Production Build
+
 ```bash
 # Create optimized production build
 npm run build
@@ -117,17 +127,19 @@ npm run preview
 ```
 
 ### Build Output
+
 - Optimized bundle with tree-shaking and code splitting
 - Static assets with hashed filenames for caching
 - Built files output to `dist/` directory
 - Ready for deployment to static hosting services
 
 ### Deployment Options
+
 ```bash
 # Deploy to Netlify
 npm run build && npx netlify deploy --prod --dir=dist
 
-# Deploy to Vercel  
+# Deploy to Vercel
 npm run build && npx vercel --prod
 
 # Serve locally with any static server
@@ -137,6 +149,7 @@ npx serve dist
 ## Architecture
 
 ### High-Level Architecture
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    MarkdownViewer App                       │
@@ -161,8 +174,9 @@ npx serve dist
 ```
 
 ### Core Components
+
 - **MarkdownViewer**: Main rendering component with syntax highlighting
-- **MarkdownEditor**: Live editing with preview capabilities  
+- **MarkdownEditor**: Live editing with preview capabilities
 - **FileBrowser**: Tree-view file navigation with folder management
 - **TableOfContents**: Auto-generated TOC from markdown headers
 - **SearchInterface**: Full-text search across all markdown files
@@ -171,26 +185,30 @@ npx serve dist
 ## Development
 
 ### Development Philosophy
+
 Focus on creating an intuitive user experience that makes viewing, editing, and organizing markdown files effortless. Emphasize the "Easy Button" approach - making complex markdown management feel simple through thoughtful architecture and clean implementation.
 
 ### Getting Started
+
 1. Read the project documentation files for context
 2. Follow the [Build Local](#build-local) instructions
 3. Start with the first milestone tasks in the development roadmap
 4. Maintain test coverage and code quality standards
 
 ### Project Structure
+
 ```
 src/
 ├── components/          # React components
 ├── services/           # Core business logic
-├── hooks/             # Custom React hooks  
+├── hooks/             # Custom React hooks
 ├── utils/             # Utility functions
 ├── types/             # TypeScript type definitions
 └── styles/            # Global styles and themes
 ```
 
 ### Contributing
+
 - Follow TypeScript strict mode guidelines
 - Maintain comprehensive test coverage
 - Use conventional commit messages
@@ -199,4 +217,4 @@ src/
 
 ---
 
-*MarkdownViewer - Making markdown management effortless.*
+_MarkdownViewer - Making markdown management effortless._
