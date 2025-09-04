@@ -138,3 +138,4 @@ dist
 # Markdown files (except README.md)
 *.md
 !README.md
+!INSTALL.md

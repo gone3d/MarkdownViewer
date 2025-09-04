@@ -311,7 +311,7 @@ class FileService {
     };
   }
 
-  public async saveFile(file: MarkdownFile, content: string): Promise<boolean> {
+  public async saveFile(file: MarkdownFile, content: string): Promise<{ success: boolean; fileHandle?: FileSystemFileHandle }> {
     try {
       // Debug logging
       console.log('Save attempt:', {
@@ -327,13 +327,19 @@ class FileService {
         const writable = await file.fileHandle.createWritable();
         await writable.write(content);
         await writable.close();
-        return true;
+        return { success: true, fileHandle: file.fileHandle };
+      }
+
+      // For new files without fileHandle, use save-as dialog
+      if (this.fileSystemSupported && !file.fileHandle) {
+        console.log('Using File System Access API save-as for new file');
+        return await this.saveAsFile(file.name, content);
       }
 
       // Fallback: trigger download for browsers without File System Access API support
-      // or for files that don't have a fileHandle
-      console.log('Falling back to download - no fileHandle available');
-      return this.downloadFile(file.name, content);
+      console.log('Falling back to download - File System Access API not supported');
+      const success = this.downloadFile(file.name, content);
+      return { success };
     } catch (error) {
       console.error('Error saving file:', error);
 
@@ -341,7 +347,37 @@ class FileService {
       console.warn(
         'File System Access API save failed, falling back to download'
       );
-      return this.downloadFile(file.name, content);
+      const success = this.downloadFile(file.name, content);
+      return { success };
+    }
+  }
+
+  private async saveAsFile(suggestedName: string, content: string): Promise<{ success: boolean; fileHandle?: FileSystemFileHandle }> {
+    try {
+      const fileHandle = await window.showSaveFilePicker({
+        types: [
+          {
+            description: 'Markdown files',
+            accept: {
+              'text/markdown': ['.md', '.markdown'],
+              'text/plain': ['.txt'],
+            },
+          },
+        ],
+        suggestedName,
+      });
+
+      const writable = await fileHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+
+      return { success: true, fileHandle };
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        // User cancelled
+        return { success: false };
+      }
+      throw error;
     }
   }
 
