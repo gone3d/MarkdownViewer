@@ -191,8 +191,46 @@
 
 /* Task lists (checkboxes) */
 .markdown-content input[type="checkbox"] {
-  @apply mr-2 scale-110;
-  accent-color: theme('colors.primary.600');
+  @apply mr-2;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #6b7280; /* gray-500 */
+  border-radius: 3px;
+  background-color: transparent;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Dark mode unchecked checkbox */
+.dark .markdown-content input[type="checkbox"] {
+  border-color: #9ca3af; /* gray-400 */
+}
+
+/* Checked checkboxes - green with checkmark */
+.markdown-content input[type="checkbox"]:checked {
+  background-color: #16a34a; /* green-600 */
+  border-color: #16a34a; /* green-600 */
+}
+
+/* Dark mode checked checkbox */
+.dark .markdown-content input[type="checkbox"]:checked {
+  background-color: #22c55e; /* green-500 */
+  border-color: #22c55e; /* green-500 */
+}
+
+/* Checkmark symbol */
+.markdown-content input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  line-height: 1;
 }
 
 .markdown-content li {
@@ -233,55 +271,55 @@
 /* These classes will be used by the syntax highlighting overlay system */
 
 :root {
-  /* Light theme colors */
-  --md-header-color: #d73a49;
-  --md-header-marker-color: #22863a;
-  --md-bold-color: #24292e;
-  --md-bold-marker-color: #22863a;
-  --md-italic-color: #24292e;
-  --md-italic-marker-color: #22863a;
-  --md-code-color: #22863a;
-  --md-code-marker-color: #22863a;
+  /* Light theme colors - VS Code inspired */
+  --md-header-color: #A31515;
+  --md-header-marker-color: #A31515;
+  --md-bold-color: #0000FF;
+  --md-bold-marker-color: #808080;
+  --md-italic-color: #008000;
+  --md-italic-marker-color: #808080;
+  --md-code-color: #A31515;
+  --md-code-marker-color: #808080;
   --md-code-bg-color: #f6f8fa;
-  --md-link-color: #0969da;
-  --md-link-text-color: #0969da;
-  --md-link-url-color: #6a737d;
-  --md-image-color: #0969da;
-  --md-list-marker-color: #22863a;
-  --md-list-item-color: #24292e;
-  --md-blockquote-color: #6a737d;
-  --md-blockquote-marker-color: #22863a;
-  --md-strikethrough-color: #6a737d;
-  --md-strikethrough-marker-color: #22863a;
-  --md-hr-color: #6a737d;
-  --md-table-color: #24292e;
-  --md-text-color: #4b5563;
+  --md-link-color: #0000FF;
+  --md-link-text-color: #0000FF;
+  --md-link-url-color: #808080;
+  --md-image-color: #0000FF;
+  --md-list-marker-color: #808080;
+  --md-list-item-color: #000000;
+  --md-blockquote-color: #808080;
+  --md-blockquote-marker-color: #808080;
+  --md-strikethrough-color: #808080;
+  --md-strikethrough-marker-color: #808080;
+  --md-hr-color: #808080;
+  --md-table-color: #000000;
+  --md-text-color: #000000;
 }
 
 .dark {
-  /* Dark theme colors */
-  --md-header-color: #ff6b6b;
-  --md-header-marker-color: #7ee787;
-  --md-bold-color: #f0f6fc;
-  --md-bold-marker-color: #7ee787;
-  --md-italic-color: #f0f6fc;
-  --md-italic-marker-color: #7ee787;
-  --md-code-color: #7ee787;
-  --md-code-marker-color: #7ee787;
+  /* Dark theme colors - VS Code inspired */
+  --md-header-color: #569CD6;
+  --md-header-marker-color: #569CD6;
+  --md-bold-color: #D7BA7D;
+  --md-bold-marker-color: #808080;
+  --md-italic-color: #4EC9B0;
+  --md-italic-marker-color: #808080;
+  --md-code-color: #CE9178;
+  --md-code-marker-color: #808080;
   --md-code-bg-color: #161b22;
-  --md-link-color: #58a6ff;
-  --md-link-text-color: #58a6ff;
-  --md-link-url-color: #8b949e;
-  --md-image-color: #58a6ff;
-  --md-list-marker-color: #7ee787;
-  --md-list-item-color: #f0f6fc;
-  --md-blockquote-color: #8b949e;
-  --md-blockquote-marker-color: #7ee787;
-  --md-strikethrough-color: #8b949e;
-  --md-strikethrough-marker-color: #7ee787;
-  --md-hr-color: #8b949e;
-  --md-table-color: #f0f6fc;
-  --md-text-color: #f0f6fc;
+  --md-link-color: #569CD6;
+  --md-link-text-color: #569CD6;
+  --md-link-url-color: #808080;
+  --md-image-color: #569CD6;
+  --md-list-marker-color: #808080;
+  --md-list-item-color: #D4D4D4;
+  --md-blockquote-color: #608B4E;
+  --md-blockquote-marker-color: #808080;
+  --md-strikethrough-color: #808080;
+  --md-strikethrough-marker-color: #808080;
+  --md-hr-color: #808080;
+  --md-table-color: #D4D4D4;
+  --md-text-color: #D4D4D4;
 }
 
 /* Syntax highlighting classes */
@@ -296,7 +334,7 @@
 }
 
 .md-bold {
-  color: var(--md-header-color);
+  color: var(--md-bold-color);
   font-weight: bold;
 }
 
@@ -306,7 +344,7 @@
 }
 
 .md-italic {
-  color: var(--md-header-color);
+  color: var(--md-italic-color);
   font-style: italic;
 }
 
@@ -330,11 +368,11 @@
 }
 
 .md-link {
-  color: var(--md-header-color);
+  color: var(--md-link-color);
 }
 
 .md-link-text {
-  color: var(--md-header-color);
+  color: var(--md-link-text-color);
   text-decoration: underline;
 }
 
@@ -343,11 +381,11 @@
 }
 
 .md-image {
-  color: var(--md-header-color);
+  color: var(--md-image-color);
 }
 
 .md-image-alt {
-  color: var(--md-header-color);
+  color: var(--md-image-color);
   font-style: italic;
 }
 
@@ -361,11 +399,11 @@
 }
 
 .md-list-item {
-  color: var(--md-header-color);
+  color: var(--md-list-item-color);
 }
 
 .md-blockquote {
-  color: var(--md-header-color);
+  color: var(--md-blockquote-color);
   font-style: italic;
 }
 
@@ -375,7 +413,7 @@
 }
 
 .md-strikethrough {
-  color: var(--md-header-color);
+  color: var(--md-strikethrough-color);
   text-decoration: line-through;
 }
 

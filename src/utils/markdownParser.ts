@@ -108,11 +108,11 @@ export class MarkdownParser {
     this.parseInlineCode();
     this.parseLinks();
     this.parseImages();
+    this.parseLists(); // Parse all lists (includes task lists with recursive markdown parsing)
     this.parseBold();
     this.parseItalic();
     this.parseStrikethrough();
     this.parseBlockquotes();
-    this.parseLists();
     this.parseHorizontalRules();
     this.parseTables();
     
@@ -459,69 +459,95 @@ export class MarkdownParser {
   }
 
   /**
-   * Parse list items (- item, * item, + item, 1. item)
+   * Parse all list items (unordered, ordered, and task lists)
    */
   private parseLists(): void {
-    // Unordered lists
-    const unorderedMatches = Array.from(this.content.matchAll(MarkdownPatterns.unorderedList));
-    for (const match of unorderedMatches) {
-      if (match.index !== undefined) {
-        const indent = match[1]; // leading whitespace
-        const marker = match[2]; // -, *, or +
-        const text = match[3]; // list item text
-        
-        // Add marker token
-        const markerStart = match.index + indent.length;
-        this.tokens.push({
-          type: 'list-marker',
-          start: markerStart,
-          end: markerStart + marker.length,
-          content: marker,
-          raw: marker
-        });
-        
-        // Add list item text
-        const textStart = markerStart + marker.length + 1; // +1 for space
-        this.tokens.push({
-          type: 'list-item',
-          start: textStart,
-          end: match.index + match[0].length,
-          content: text,
-          raw: text
-        });
-      }
-    }
+    // Parse unordered lists (- item, * item, + item)
+    this.parseListType(MarkdownPatterns.unorderedList, 'unordered');
     
-    // Ordered lists
-    const orderedMatches = Array.from(this.content.matchAll(MarkdownPatterns.orderedList));
-    for (const match of orderedMatches) {
+    // Parse ordered lists (1. item, 2. item, etc.)
+    this.parseListType(MarkdownPatterns.orderedList, 'ordered');
+    
+    // Parse task lists (- [x] item, - [ ] item)
+    this.parseListType(MarkdownPatterns.taskList, 'task');
+  }
+
+  /**
+   * Parse a specific type of list and process markdown within each item
+   */
+  private parseListType(pattern: RegExp, listType: 'unordered' | 'ordered' | 'task'): void {
+    const matches = Array.from(this.content.matchAll(pattern));
+    
+    for (const match of matches) {
       if (match.index !== undefined) {
-        const indent = match[1]; // leading whitespace
-        const marker = match[2]; // 1., 2., etc.
-        const text = match[3]; // list item text
-        
-        // Add marker token
-        const markerStart = match.index + indent.length;
-        this.tokens.push({
-          type: 'list-marker',
-          start: markerStart,
-          end: markerStart + marker.length,
-          content: marker,
-          raw: marker
-        });
-        
-        // Add list item text
-        const textStart = markerStart + marker.length + 1; // +1 for space
-        this.tokens.push({
-          type: 'list-item',
-          start: textStart,
-          end: match.index + match[0].length,
-          content: text,
-          raw: text
-        });
+        if (listType === 'task') {
+          // Task list: - [x] text or - [ ] text
+          const indent = match[1];      // leading whitespace
+          const listMarker = match[2];  // -, *, or +
+          const checkbox = match[3];    // [x] or [ ]
+          const text = match[4];        // list item text
+          
+          this.parseTaskListItem(match.index, indent, listMarker, checkbox, text);
+        } else {
+          // Regular list: - text or 1. text
+          const indent = match[1];      // leading whitespace  
+          const marker = match[2];      // -, *, +, 1., 2., etc.
+          const text = match[3];        // list item text
+          
+          this.parseRegularListItem(match.index, indent, marker, text);
+        }
       }
     }
   }
+
+  /**
+   * Parse a regular list item and its markdown content
+   */
+  private parseRegularListItem(matchIndex: number, indent: string, marker: string, text: string): void {
+    // Add list marker token
+    const markerStart = matchIndex + indent.length;
+    this.tokens.push({
+      type: 'list-marker',
+      start: markerStart,
+      end: markerStart + marker.length,
+      content: marker,
+      raw: marker
+    });
+    
+    // Parse markdown within the list item text
+    const textStart = markerStart + marker.length + 1; // +1 for space
+    this.parseMarkdownInText(text, textStart);
+  }
+
+  /**
+   * Parse a task list item and its markdown content  
+   */
+  private parseTaskListItem(matchIndex: number, indent: string, listMarker: string, checkbox: string, text: string): void {
+    // Add list marker token (- or * or +)
+    const listMarkerStart = matchIndex + indent.length;
+    this.tokens.push({
+      type: 'list-marker',
+      start: listMarkerStart,
+      end: listMarkerStart + listMarker.length,
+      content: listMarker,
+      raw: listMarker
+    });
+    
+    // Add checkbox token ([x] or [ ])
+    const checkboxStart = listMarkerStart + listMarker.length + 1; // +1 for space
+    this.tokens.push({
+      type: 'list-marker',
+      start: checkboxStart,
+      end: checkboxStart + checkbox.length,
+      content: checkbox,
+      raw: checkbox
+    });
+    
+    // Parse markdown within the task list item text
+    const textStart = checkboxStart + checkbox.length + 1; // +1 for space
+    this.parseMarkdownInText(text, textStart);
+  }
+
 
   /**
    * Parse horizontal rules (--- *** ___)
@@ -559,6 +585,42 @@ export class MarkdownParser {
         });
       }
     }
+  }
+
+  /**
+   * Parse only inline markdown elements (for use within list items, etc.)
+   */
+  public parseInlineElements(): MarkdownToken[] {
+    this.tokens = [];
+    
+    // Parse inline elements only (not block elements like lists, headers)
+    this.parseBold();
+    this.parseItalic();
+    this.parseInlineCode();
+    this.parseLinks();
+    this.parseImages();
+    this.parseStrikethrough();
+    
+    return this.tokens;
+  }
+
+  /**
+   * Parse markdown syntax within a specific text segment
+   */
+  private parseMarkdownInText(text: string, startOffset: number): void {
+    // Create a mini-parser for this text segment
+    const tempParser = new MarkdownParser(text);
+    const inlineTokens = tempParser.parseInlineElements();
+    
+    // Offset all tokens to match the original content position
+    const offsetTokens = inlineTokens.map(token => ({
+      ...token,
+      start: token.start + startOffset,
+      end: token.end + startOffset
+    }));
+    
+    // Add tokens to main parser
+    this.tokens.push(...offsetTokens);
   }
 
   /**
