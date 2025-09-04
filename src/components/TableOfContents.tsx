@@ -5,20 +5,22 @@ import { extractTableOfContents, flattenTOC } from '../utils/tocExtractor';
 
 interface TableOfContentsProps {
   currentFile: MarkdownFile | null;
+  headerIds?: Map<string, string>;
   className?: string;
 }
 
 const TableOfContents: React.FC<TableOfContentsProps> = ({ 
   currentFile, 
+  headerIds,
   className = '' 
 }) => {
   const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
 
-  // Extract TOC from current file
+  // Extract TOC from current file using provided header IDs
   const tocItems = useMemo(() => {
     if (!currentFile?.content) return [];
-    return extractTableOfContents(currentFile.content);
-  }, [currentFile?.content]);
+    return extractTableOfContents(currentFile.content, headerIds);
+  }, [currentFile?.content, headerIds]);
 
   const flatTocItems = useMemo(() => flattenTOC(tocItems), [tocItems]);
 

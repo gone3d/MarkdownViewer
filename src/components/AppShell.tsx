@@ -15,6 +15,7 @@ interface AppShellProps {
   onContentChange?: (content: string) => void;
   onSave?: (content: string) => void;
   fileTree?: ReturnType<typeof useFileTree>;
+  headerIds?: Map<string, string>;
 }
 
 const AppShell: React.FC<AppShellProps> = ({
@@ -28,6 +29,7 @@ const AppShell: React.FC<AppShellProps> = ({
   onContentChange,
   onSave,
   fileTree,
+  headerIds,
 }) => {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>('files');
 
@@ -43,6 +45,7 @@ const AppShell: React.FC<AppShellProps> = ({
             onFileSelect={onFileSelect}
             onFileOpen={onFileOpen}
             fileTree={fileTree}
+            headerIds={headerIds}
           />
         </aside>
       )}
@@ -56,6 +59,7 @@ const AppShell: React.FC<AppShellProps> = ({
           error={error}
           onContentChange={onContentChange}
           onSave={onSave}
+          headerIds={headerIds}
           className="h-full"
         />
       </main>

@@ -63,11 +63,12 @@
   }
   
   /* Paragraphs - reduce line height and bottom margin */
-  @apply prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-normal prose-p:mb-2;
+  @apply prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-p:leading-normal prose-p:mb-2;
   
   /* Lists - reduce spacing between items */
   @apply prose-ul:my-2 prose-ol:my-2;
   @apply prose-li:my-0 prose-li:leading-normal prose-li:mb-1;
+  @apply prose-li:text-gray-600 dark:prose-li:text-gray-400;
 }
 
 /* Additional custom spacing overrides */
@@ -220,84 +221,270 @@
   @apply bg-gray-400 dark:bg-gray-500;
 }
 
-/* CodeMirror Editor Styles - Unified with Viewer */
-.cm-editor {
+/* Simple Editor Styles - Clean textarea-based editor */
+.simple-editor-container {
   height: 100%;
   width: 100%;
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 14px;
 }
 
-.cm-content {
+/* Markdown Syntax Highlighting CSS Classes */
+/* These classes will be used by the syntax highlighting overlay system */
+
+:root {
+  /* Light theme colors */
+  --md-header-color: #d73a49;
+  --md-header-marker-color: #22863a;
+  --md-bold-color: #24292e;
+  --md-bold-marker-color: #22863a;
+  --md-italic-color: #24292e;
+  --md-italic-marker-color: #22863a;
+  --md-code-color: #22863a;
+  --md-code-marker-color: #22863a;
+  --md-code-bg-color: #f6f8fa;
+  --md-link-color: #0969da;
+  --md-link-text-color: #0969da;
+  --md-link-url-color: #6a737d;
+  --md-image-color: #0969da;
+  --md-list-marker-color: #22863a;
+  --md-list-item-color: #24292e;
+  --md-blockquote-color: #6a737d;
+  --md-blockquote-marker-color: #22863a;
+  --md-strikethrough-color: #6a737d;
+  --md-strikethrough-marker-color: #22863a;
+  --md-hr-color: #6a737d;
+  --md-table-color: #24292e;
+  --md-text-color: #4b5563;
+}
+
+.dark {
+  /* Dark theme colors */
+  --md-header-color: #ff6b6b;
+  --md-header-marker-color: #7ee787;
+  --md-bold-color: #f0f6fc;
+  --md-bold-marker-color: #7ee787;
+  --md-italic-color: #f0f6fc;
+  --md-italic-marker-color: #7ee787;
+  --md-code-color: #7ee787;
+  --md-code-marker-color: #7ee787;
+  --md-code-bg-color: #161b22;
+  --md-link-color: #58a6ff;
+  --md-link-text-color: #58a6ff;
+  --md-link-url-color: #8b949e;
+  --md-image-color: #58a6ff;
+  --md-list-marker-color: #7ee787;
+  --md-list-item-color: #f0f6fc;
+  --md-blockquote-color: #8b949e;
+  --md-blockquote-marker-color: #7ee787;
+  --md-strikethrough-color: #8b949e;
+  --md-strikethrough-marker-color: #7ee787;
+  --md-hr-color: #8b949e;
+  --md-table-color: #f0f6fc;
+  --md-text-color: #f0f6fc;
+}
+
+/* Syntax highlighting classes */
+.md-header {
+  color: var(--md-header-color);
+  font-weight: bold;
+}
+
+.md-header-marker {
+  color: var(--md-header-marker-color);
+  font-weight: bold;
+}
+
+.md-bold {
+  color: var(--md-header-color);
+  font-weight: bold;
+}
+
+.md-bold-marker {
+  color: var(--md-bold-marker-color);
+  font-weight: normal;
+}
+
+.md-italic {
+  color: var(--md-header-color);
+  font-style: italic;
+}
+
+.md-italic-marker {
+  color: var(--md-italic-marker-color);
+  font-style: normal;
+}
+
+.md-code {
+  color: var(--md-code-color);
+  background-color: var(--md-code-bg-color);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.25em;
+  border-radius: 3px;
+}
+
+.md-code-marker {
+  color: var(--md-code-marker-color);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.md-link {
+  color: var(--md-header-color);
+}
+
+.md-link-text {
+  color: var(--md-header-color);
+  text-decoration: underline;
+}
+
+.md-link-url {
+  color: var(--md-link-url-color);
+}
+
+.md-image {
+  color: var(--md-header-color);
+}
+
+.md-image-alt {
+  color: var(--md-header-color);
+  font-style: italic;
+}
+
+.md-image-url {
+  color: var(--md-link-url-color);
+}
+
+.md-list-marker {
+  color: var(--md-list-marker-color);
+  font-weight: bold;
+}
+
+.md-list-item {
+  color: var(--md-header-color);
+}
+
+.md-blockquote {
+  color: var(--md-header-color);
+  font-style: italic;
+}
+
+.md-blockquote-marker {
+  color: var(--md-blockquote-marker-color);
+  font-weight: bold;
+}
+
+.md-strikethrough {
+  color: var(--md-header-color);
+  text-decoration: line-through;
+}
+
+.md-strikethrough-marker {
+  color: var(--md-strikethrough-marker-color);
+}
+
+.md-hr {
+  color: var(--md-hr-color);
+  font-weight: bold;
+}
+
+.md-table {
+  color: var(--md-table-color);
+}
+
+.md-text {
+  color: var(--md-text-color);
+}
+
+/* Syntax Highlighted Editor - Mirror Div Approach */
+.syntax-highlighted-editor {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.syntax-highlight-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
   padding: 16px;
-  min-height: 100%;
-  width: 100%;
-  font-family: inherit;
-  /* Light theme by default */
-  background-color: #ffffff;
-  color: #111827;
-}
-
-/* Dark theme override */
-.dark .cm-content {
-  background-color: #1f2937;
-  color: #ffffff;
-}
-
-.cm-focused {
+  margin: 0;
+  border: 0;
   outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  background: transparent;
+  color: var(--md-text-color);
 }
 
-.cm-scroller {
-  font-family: inherit;
+.syntax-editor-textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 16px;
+  margin: 0;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  white-space: pre-wrap;
+  word-wrap: break-word;
   overflow: auto;
-  width: 100%;
+  z-index: 2;
+  caret-color: var(--md-text-color);
 }
 
-.cm-line {
-  line-height: 1.6;
+.syntax-editor-textarea::selection {
+  background: #3178c6;
+  color: white;
 }
 
-/* Light theme syntax highlighting */
-.cm-keyword { color: #d73a49; }
-.cm-string { color: #032f62; }
-.cm-comment { color: #6a737d; font-style: italic; }
-.cm-number { color: #005cc5; }
-.cm-operator { color: #d73a49; }
-.cm-punctuation { color: #6f42c1; }
-.cm-meta { color: #735c0f; }
-.cm-link { color: #005cc5; text-decoration: underline; }
-.cm-tag { color: #22863a; }
-.cm-attribute { color: #6f42c1; }
-.cm-variable { color: #e36209; }
-.cm-header { color: #005cc5; font-weight: bold; }
-.cm-quote { color: #6a737d; font-style: italic; }
-.cm-list { color: #d73a49; }
-.cm-hr { color: #6a737d; }
-.cm-strong { font-weight: bold; }
-.cm-em { font-style: italic; }
+.dark .syntax-editor-textarea::selection {
+  background: #264f78;
+  color: white;
+}
 
-/* Dark theme syntax highlighting */
+.syntax-editor-textarea::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
 
-.dark .cm-keyword { color: #ff7b72; }
-.dark .cm-string { color: #a5d6ff; }
-.dark .cm-comment { color: #8b949e; font-style: italic; }
-.dark .cm-number { color: #79c0ff; }
-.dark .cm-operator { color: #ff7b72; }
-.dark .cm-punctuation { color: #f0f6fc; }
-.dark .cm-meta { color: #ffa657; }
-.dark .cm-link { color: #58a6ff; text-decoration: underline; }
-.dark .cm-tag { color: #7ee787; }
-.dark .cm-attribute { color: #f0f6fc; }
-.dark .cm-variable { color: #ffa657; }
-.dark .cm-header { color: #1f6feb; font-weight: bold; }
-.dark .cm-quote { color: #8b949e; font-style: italic; }
-.dark .cm-list { color: #ff7b72; }
-.dark .cm-hr { color: #8b949e; }
-.dark .cm-strong { font-weight: bold; }
-.dark .cm-em { font-style: italic; }
+.dark .syntax-editor-textarea::placeholder {
+  color: #6b7280;
+}
 
-/* Direct theme styling - no CSS variables to avoid conflicts */
+/* Ensure backdrop and textarea have identical styling */
+.syntax-highlight-backdrop,
+.syntax-editor-textarea {
+  font-variant-ligatures: none;
+  font-feature-settings: normal;
+  tab-size: 2;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+/* Background for the entire editor */
+.syntax-highlighted-editor {
+  background: white;
+}
+
+.dark .syntax-highlighted-editor {
+  background: #0d1117;
+}
 
 /* Print styles */
 @media print {

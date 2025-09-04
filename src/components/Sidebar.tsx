@@ -12,6 +12,7 @@ interface SidebarProps {
   onFileSelect?: (filePath: string) => void;
   onFileOpen?: (filePath: string) => void;
   fileTree?: ReturnType<typeof useFileTree>;
+  headerIds?: Map<string, string>;
   className?: string;
 }
 
@@ -22,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onFileSelect,
   onFileOpen,
   fileTree,
+  headerIds,
   className = '',
 }) => {
   const modes = [
@@ -72,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {mode === 'toc' && (
-          <TableOfContents currentFile={currentFile} className="h-full" />
+          <TableOfContents currentFile={currentFile} headerIds={headerIds} className="h-full" />
         )}
 
         {mode === 'search' && (

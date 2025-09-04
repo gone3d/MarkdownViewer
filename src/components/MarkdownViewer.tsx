@@ -1,26 +1,104 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeRaw from 'rehype-raw';
-import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { MarkdownFile } from '../types/markdown';
+import { precomputeHeaderIds } from '../utils/slugify';
 
 interface MarkdownViewerProps {
   file: MarkdownFile | null;
   className?: string;
+  headerIds?: Map<string, string>;
 }
 
-const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ file, className = '' }) => {
+const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ file, className = '', headerIds }) => {
   const contentRef = useRef<HTMLElement>(null);
+
+  // Helper to extract text from React children
+  const extractTextFromChildren = useCallback((children: any): string => {
+    if (typeof children === 'string') return children;
+    if (Array.isArray(children)) return children.map(extractTextFromChildren).join('');
+    if (children?.props?.children) return extractTextFromChildren(children.props.children);
+    return '';
+  }, []);
+
+  // Pre-compute or use provided header IDs
+  const idMap = useMemo(() => {
+    return headerIds || (file?.content ? precomputeHeaderIds(file.content) : new Map());
+  }, [file?.content, headerIds]);
+  
+  // Memoize the custom header components to prevent double renders
+  const headerComponents = useMemo(() => ({
+    h1: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+      return (
+        <h1 id={id} {...props}>
+          {children}
+          <a href={`#${id}`} className="anchor-link" aria-label="Link to section"> #</a>
+        </h1>
+      );
+    },
+    h2: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+      return (
+        <h2 id={id} {...props}>
+          {children}
+          <a href={`#${id}`} className="anchor-link" aria-label="Link to section"> #</a>
+        </h2>
+      );
+    },
+    h3: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+      return (
+        <h3 id={id} {...props}>
+          {children}
+          <a href={`#${id}`} className="anchor-link" aria-label="Link to section"> #</a>
+        </h3>
+      );
+    },
+    h4: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+      return (
+        <h4 id={id} {...props}>
+          {children}
+          <a href={`#${id}`} className="anchor-link" aria-label="Link to section"> #</a>
+        </h4>
+      );
+    },
+    h5: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+      return (
+        <h5 id={id} {...props}>
+          {children}
+          <a href={`#${id}`} className="anchor-link" aria-label="Link to section"> #</a>
+        </h5>
+      );
+    },
+    h6: ({ children, ...props }: any) => {
+      const text = extractTextFromChildren(children);
+      const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+      return (
+        <h6 id={id} {...props}>
+          {children}
+          <a href={`#${id}`} className="anchor-link" aria-label="Link to section"> #</a>
+        </h6>
+      );
+    },
+  }), [idMap, extractTextFromChildren]);
 
   // Apply progressive indentation after content is rendered
   useEffect(() => {
     if (!contentRef.current || !file) return;
 
     const content = contentRef.current;
+    
     const headers = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
     
     headers.forEach((header, index) => {
@@ -56,7 +134,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ file, className = '' })
         (element as HTMLElement).style.paddingLeft = currentIndent;
       });
     });
-  }, [file?.content]);
+  }, [file?.content, file]);
 
   if (!file) {
     return (
@@ -93,33 +171,14 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ file, className = '' })
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkBreaks]}
             rehypePlugins={[
-              rehypeHighlight, 
-              rehypeRaw, 
-              [rehypeSlug, {
-                prefix: '',
-                slugify: (text: string) => {
-                  return text
-                    .toLowerCase()
-                    .replace(/[^\w\s-]/g, '')
-                    .replace(/[\s_-]+/g, '-')
-                    .replace(/^-+|-+$/g, '');
-                }
-              }],
-              [rehypeAutolinkHeadings, {
-                behavior: 'append',
-                properties: {
-                  className: ['anchor-link'],
-                  ariaLabel: 'Link to section'
-                },
-                content: {
-                  type: 'text',
-                  value: ' #'
-                }
-              }]
+              rehypeRaw,
+              rehypeHighlight
             ]}
             components={{
+              // Use memoized header components
+              ...headerComponents,
               // Custom link renderer for external links
-              a: ({ node, href, ...props }) => {
+              a: ({ href, ...props }) => {
                 const isExternal = href && href.startsWith('http');
                 return (
                   <a
@@ -131,7 +190,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ file, className = '' })
                 );
               },
               // Custom image renderer with lazy loading
-              img: ({ node, alt, src, ...props }) => (
+              img: ({ alt, src, ...props }) => (
                 <img
                   alt={alt}
                   src={src}
@@ -141,7 +200,7 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ file, className = '' })
                 />
               ),
               // Custom code block renderer
-              pre: ({ node, ...props }) => (
+              pre: ({ ...props }) => (
                 <pre className="relative overflow-x-auto" {...props} />
               ),
             }}

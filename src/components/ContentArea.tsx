@@ -12,6 +12,7 @@ interface ContentAreaProps {
   onContentChange?: (content: string) => void;
   onSave?: (content: string) => void;
   className?: string;
+  headerIds?: Map<string, string>;
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({
@@ -22,6 +23,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onContentChange,
   onSave,
   className = '',
+  headerIds,
 }) => {
   // Local state for editor content (for split view synchronization)
   const [editorContent, setEditorContent] = useState<string>('');
@@ -127,7 +129,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     case 'viewer':
       return (
         <div className={`h-full ${className}`}>
-          <MarkdownViewer file={currentFile} className="h-full" />
+          <MarkdownViewer file={currentFile} headerIds={headerIds} className="h-full" />
         </div>
       );
 
@@ -171,6 +173,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 ...currentFile,
                 content: editorContent || currentFile.content
               } : null} 
+              headerIds={headerIds}
               className="h-full w-full" 
             />
           </div>
@@ -180,7 +183,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     default:
       return (
         <div className={`h-full ${className}`}>
-          <MarkdownViewer file={currentFile} className="h-full" />
+          <MarkdownViewer file={currentFile} headerIds={headerIds} className="h-full" />
         </div>
       );
   }
