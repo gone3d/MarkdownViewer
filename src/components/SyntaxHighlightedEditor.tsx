@@ -21,8 +21,21 @@ export interface SyntaxHighlightedEditorRef {
  * - Simpler architecture with better performance
  * - Native text editing capabilities
  */
-const SyntaxHighlightedEditor = forwardRef<SyntaxHighlightedEditorRef, SyntaxHighlightedEditorProps>(
-  ({ value, onChange, onKeyDown, readOnly = false, placeholder = '', className = '' }, ref) => {
+const SyntaxHighlightedEditor = forwardRef<
+  SyntaxHighlightedEditorRef,
+  SyntaxHighlightedEditorProps
+>(
+  (
+    {
+      value,
+      onChange,
+      onKeyDown,
+      readOnly = false,
+      placeholder = '',
+      className = '',
+    },
+    ref
+  ) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const highlightRef = useRef<HTMLDivElement>(null);
 
@@ -46,36 +59,36 @@ const SyntaxHighlightedEditor = forwardRef<SyntaxHighlightedEditorRef, SyntaxHig
 
       try {
         const tokens = parseMarkdown(content);
-        
+
         // Filter overlapping tokens
         const filteredTokens = filterOverlappingTokens(tokens);
-        
+
         let result = '';
         let lastIndex = 0;
-        
+
         for (const token of filteredTokens) {
           // Add text before this token (if any)
           if (token.start > lastIndex) {
             const beforeText = content.substring(lastIndex, token.start);
             result += escapeHtml(beforeText);
           }
-          
+
           // Add the highlighted token
           const tokenContent = escapeHtml(token.content);
           const cssClass = `md-${token.type}`;
           result += `<span class="${cssClass}">${tokenContent}</span>`;
-          
+
           lastIndex = token.end;
         }
-        
+
         // Add any remaining text
         if (lastIndex < content.length) {
           result += escapeHtml(content.substring(lastIndex));
         }
-        
+
         // Add a final newline to match textarea behavior
         result += '\n';
-        
+
         return result;
       } catch (error) {
         console.warn('Syntax highlighting error:', error);
@@ -90,15 +103,15 @@ const SyntaxHighlightedEditor = forwardRef<SyntaxHighlightedEditorRef, SyntaxHig
           ref={highlightRef}
           className="syntax-highlight-backdrop"
           dangerouslySetInnerHTML={{
-            __html: getHighlightedContent(value)
+            __html: getHighlightedContent(value),
           }}
         />
-        
+
         {/* Actual textarea for input */}
         <textarea
           ref={textareaRef}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           onKeyDown={onKeyDown}
           onScroll={handleScroll}
           readOnly={readOnly}
@@ -119,21 +132,21 @@ SyntaxHighlightedEditor.displayName = 'SyntaxHighlightedEditor';
 function filterOverlappingTokens(tokens: any[]): any[] {
   const sorted = [...tokens].sort((a, b) => {
     if (a.start !== b.start) return a.start - b.start;
-    return (a.end - a.start) - (b.end - b.start);
+    return a.end - a.start - (b.end - b.start);
   });
-  
+
   const filtered: any[] = [];
-  
+
   for (const token of sorted) {
-    const hasOverlap = filtered.some(existing => 
-      !(token.end <= existing.start || token.start >= existing.end)
+    const hasOverlap = filtered.some(
+      existing => !(token.end <= existing.start || token.start >= existing.end)
     );
-    
+
     if (!hasOverlap) {
       filtered.push(token);
     }
   }
-  
+
   return filtered.sort((a, b) => a.start - b.start);
 }
 

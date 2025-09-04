@@ -10,7 +10,10 @@ export interface TOCItem {
 /**
  * Extract table of contents from markdown content using pre-computed header IDs
  */
-export const extractTableOfContents = (content: string, headerIds?: Map<string, string>): TOCItem[] => {
+export const extractTableOfContents = (
+  content: string,
+  headerIds?: Map<string, string>
+): TOCItem[] => {
   if (!content) return [];
 
   // Pre-compute header IDs if not provided
@@ -18,20 +21,20 @@ export const extractTableOfContents = (content: string, headerIds?: Map<string, 
 
   // Extract headers while avoiding code blocks
   const headerTexts = extractMarkdownHeaders(content);
-  
+
   if (headerTexts.length === 0) return [];
-  
+
   // Build flat items with proper level detection
   const flatItems: Array<{ id: string; text: string; level: number }> = [];
-  
+
   // Re-scan content to get header levels for extracted headers
   const lines = content.split('\n');
   let inFencedCodeBlock = false;
   let fencePattern = '';
-  
+
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
+
     // Track fenced code blocks
     const fenceMatch = trimmedLine.match(/^(`{3,}|~{3,})/);
     if (fenceMatch) {
@@ -44,15 +47,15 @@ export const extractTableOfContents = (content: string, headerIds?: Map<string, 
       }
       continue;
     }
-    
+
     if (inFencedCodeBlock) continue;
     if (line.match(/^(\s{4,}|\t+)/)) continue;
-    
+
     const headerMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
     if (headerMatch) {
       const level = headerMatch[1].length;
       const text = headerMatch[2].trim();
-      
+
       // Only include if this header text was extracted by extractMarkdownHeaders
       if (headerTexts.includes(text)) {
         const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
@@ -68,7 +71,9 @@ export const extractTableOfContents = (content: string, headerIds?: Map<string, 
 /**
  * Build nested TOC structure from flat header list
  */
-function buildNestedTOC(flatItems: Array<{ id: string; text: string; level: number }>): TOCItem[] {
+function buildNestedTOC(
+  flatItems: Array<{ id: string; text: string; level: number }>
+): TOCItem[] {
   const result: TOCItem[] = [];
   const stack: TOCItem[] = [];
 
@@ -77,7 +82,7 @@ function buildNestedTOC(flatItems: Array<{ id: string; text: string; level: numb
       id: item.id,
       text: item.text,
       level: item.level,
-      children: []
+      children: [],
     };
 
     // Find the appropriate parent level
@@ -102,7 +107,9 @@ function buildNestedTOC(flatItems: Array<{ id: string; text: string; level: numb
 /**
  * Flatten nested TOC for easier rendering
  */
-export const flattenTOC = (items: TOCItem[]): Array<TOCItem & { depth: number }> => {
+export const flattenTOC = (
+  items: TOCItem[]
+): Array<TOCItem & { depth: number }> => {
   const result: Array<TOCItem & { depth: number }> = [];
 
   function traverse(items: TOCItem[], depth = 0) {

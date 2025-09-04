@@ -6,18 +6,21 @@ const initialState: FileTreeState = {
   nodes: [],
   expandedFolders: new Set(),
   selectedFile: null,
-  rootPath: null
+  rootPath: null,
 };
 
-function fileTreeReducer(state: FileTreeState, action: FileTreeAction): FileTreeState {
+function fileTreeReducer(
+  state: FileTreeState,
+  action: FileTreeAction
+): FileTreeState {
   switch (action.type) {
     case 'SET_TREE':
       return {
         ...state,
         nodes: action.payload,
-        expandedFolders: new Set([action.payload[0]?.id].filter(Boolean))
+        expandedFolders: new Set([action.payload[0]?.id].filter(Boolean)),
       };
-    
+
     case 'TOGGLE_FOLDER': {
       const newExpanded = new Set(state.expandedFolders);
       if (newExpanded.has(action.payload)) {
@@ -27,16 +30,16 @@ function fileTreeReducer(state: FileTreeState, action: FileTreeAction): FileTree
       }
       return { ...state, expandedFolders: newExpanded };
     }
-    
+
     case 'SELECT_FILE':
       return { ...state, selectedFile: action.payload };
-    
+
     case 'SET_ROOT':
       return { ...state, rootPath: action.payload };
-    
+
     case 'RESET':
       return initialState;
-    
+
     default:
       return state;
   }
@@ -59,7 +62,7 @@ export const useFileTree = (): UseFileTreeReturn => {
   const [treeState, dispatch] = useReducer(fileTreeReducer, initialState);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const fileTreeService = FileTreeService.getInstance();
 
   // Open directory picker
@@ -96,19 +99,22 @@ export const useFileTree = (): UseFileTreeReturn => {
   }, []);
 
   // Load file by ID
-  const loadFileById = useCallback(async (fileId: string): Promise<File | null> => {
-    const node = fileTreeService.findNodeById(treeState.nodes, fileId);
-    if (!node || node.type !== 'file' || !node.handle) {
-      return null;
-    }
+  const loadFileById = useCallback(
+    async (fileId: string): Promise<File | null> => {
+      const node = fileTreeService.findNodeById(treeState.nodes, fileId);
+      if (!node || node.type !== 'file' || !node.handle) {
+        return null;
+      }
 
-    try {
-      return await fileTreeService.loadFileFromHandle(node.handle);
-    } catch (error) {
-      console.error('Failed to load file:', error);
-      return null;
-    }
-  }, [treeState.nodes, fileTreeService]);
+      try {
+        return await fileTreeService.loadFileFromHandle(node.handle);
+      } catch (error) {
+        console.error('Failed to load file:', error);
+        return null;
+      }
+    },
+    [treeState.nodes, fileTreeService]
+  );
 
   // Reset tree
   const resetTree = useCallback(() => {
@@ -117,7 +123,10 @@ export const useFileTree = (): UseFileTreeReturn => {
   }, []);
 
   // Get flattened tree for rendering
-  const flatTree = fileTreeService.flattenTree(treeState.nodes, treeState.expandedFolders);
+  const flatTree = fileTreeService.flattenTree(
+    treeState.nodes,
+    treeState.expandedFolders
+  );
 
   // Get tree statistics
   const treeStats = fileTreeService.getTreeStats(treeState.nodes);
@@ -132,6 +141,6 @@ export const useFileTree = (): UseFileTreeReturn => {
     toggleFolder,
     selectFile,
     loadFileById,
-    resetTree
+    resetTree,
   };
 };

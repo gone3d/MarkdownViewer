@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MarkdownFile } from '../types/markdown';
 import EditorToolbar from './EditorToolbar';
-import SyntaxHighlightedEditor, { SyntaxHighlightedEditorRef } from './SyntaxHighlightedEditor';
+import SyntaxHighlightedEditor, {
+  SyntaxHighlightedEditorRef,
+} from './SyntaxHighlightedEditor';
 
 interface MarkdownEditorProps {
   file: MarkdownFile | null;
@@ -56,16 +58,17 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           break;
       }
     }
-    
+
     // Handle tab key for indentation
     if (e.key === 'Tab') {
       e.preventDefault();
       const textarea = e.currentTarget;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const newContent = content.substring(0, start) + '  ' + content.substring(end);
+      const newContent =
+        content.substring(0, start) + '  ' + content.substring(end);
       handleContentChange(newContent);
-      
+
       // Restore cursor position
       setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + 2;
@@ -80,7 +83,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = content.substring(start, end);
-    
+
     let insertText = text || '';
     let newCursorPos = start;
 
@@ -114,17 +117,21 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         const afterCursor = content.substring(end);
         const lineEnd = afterCursor.indexOf('\n');
         const lineEndPos = lineEnd === -1 ? content.length : end + lineEnd;
-        
+
         const lineText = content.substring(lineStart, lineEndPos);
         const headerPrefix = text || '';
         insertText = `${headerPrefix}${lineText}`;
-        
-        const newContent = content.substring(0, lineStart) + insertText + content.substring(lineEndPos);
+
+        const newContent =
+          content.substring(0, lineStart) +
+          insertText +
+          content.substring(lineEndPos);
         handleContentChange(newContent);
-        
+
         // Set cursor position
         setTimeout(() => {
-          textarea.selectionStart = textarea.selectionEnd = lineStart + headerPrefix.length;
+          textarea.selectionStart = textarea.selectionEnd =
+            lineStart + headerPrefix.length;
         }, 0);
         return;
       }
@@ -135,13 +142,17 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         const beforeCursorPos = content.substring(0, start);
         const lineStartPos = beforeCursorPos.lastIndexOf('\n') + 1;
         const prefix = text || '';
-        
-        const newContentWithPrefix = content.substring(0, lineStartPos) + prefix + content.substring(lineStartPos);
+
+        const newContentWithPrefix =
+          content.substring(0, lineStartPos) +
+          prefix +
+          content.substring(lineStartPos);
         handleContentChange(newContentWithPrefix);
-        
+
         // Set cursor position
         setTimeout(() => {
-          textarea.selectionStart = textarea.selectionEnd = lineStartPos + prefix.length;
+          textarea.selectionStart = textarea.selectionEnd =
+            lineStartPos + prefix.length;
         }, 0);
         return;
       }
@@ -150,13 +161,23 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         break;
     }
 
-    if (format !== 'h1' && format !== 'h2' && format !== 'h3' && format !== 'ul' && format !== 'ol' && format !== 'quote') {
-      const newContent = content.substring(0, start) + insertText + content.substring(end);
+    if (
+      format !== 'h1' &&
+      format !== 'h2' &&
+      format !== 'h3' &&
+      format !== 'ul' &&
+      format !== 'ol' &&
+      format !== 'quote'
+    ) {
+      const newContent =
+        content.substring(0, start) + insertText + content.substring(end);
       handleContentChange(newContent);
-      
+
       // Set cursor position
       setTimeout(() => {
-        textarea.selectionStart = textarea.selectionEnd = selectedText ? newCursorPos : start + insertText.length;
+        textarea.selectionStart = textarea.selectionEnd = selectedText
+          ? newCursorPos
+          : start + insertText.length;
       }, 0);
     }
   };
@@ -185,9 +206,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       )}
 
       {/* Editor Toolbar */}
-      {file && !readOnly && (
-        <EditorToolbar onFormat={formatText} />
-      )}
+      {file && !readOnly && <EditorToolbar onFormat={formatText} />}
 
       {/* Syntax Highlighted Editor */}
       {file && (
@@ -207,7 +226,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400">
           <div className="text-center">
             <div className="text-4xl mb-4">✏️</div>
-            <h3 className="text-lg font-medium mb-2">No file selected for editing</h3>
+            <h3 className="text-lg font-medium mb-2">
+              No file selected for editing
+            </h3>
             <p className="text-sm">Select a markdown file to start editing</p>
           </div>
         </div>

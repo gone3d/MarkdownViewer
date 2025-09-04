@@ -28,7 +28,7 @@ export class FileTreeService {
     try {
       // Show directory picker
       const directoryHandle = await (window as any).showDirectoryPicker({
-        mode: 'read'
+        mode: 'read',
       });
 
       // Build tree from directory handle
@@ -46,12 +46,12 @@ export class FileTreeService {
    * Build tree structure from directory handle
    */
   private async buildTreeFromHandle(
-    handle: any, 
+    handle: any,
     depth: number,
     parentPath = ''
   ): Promise<FileTreeNode> {
     const path = parentPath ? `${parentPath}/${handle.name}` : handle.name;
-    
+
     if (handle.kind === 'file') {
       const file = await handle.getFile();
       return {
@@ -63,14 +63,14 @@ export class FileTreeService {
         lastModified: new Date(file.lastModified),
         isMarkdown: this.isMarkdownFile(handle.name),
         depth,
-        handle
+        handle,
       };
     }
 
     // Directory
     const children: FileTreeNode[] = [];
     const entries = [];
-    
+
     // Collect all entries
     for await (const [name, childHandle] of handle.entries()) {
       entries.push({ name, handle: childHandle });
@@ -87,7 +87,11 @@ export class FileTreeService {
     // Process children
     for (const { handle: childHandle } of entries) {
       try {
-        const childNode = await this.buildTreeFromHandle(childHandle, depth + 1, path);
+        const childNode = await this.buildTreeFromHandle(
+          childHandle,
+          depth + 1,
+          path
+        );
         children.push(childNode);
       } catch (error) {
         // Skip files we can't read
@@ -103,7 +107,7 @@ export class FileTreeService {
       children,
       isExpanded: depth === 0, // Root folder expanded by default
       depth,
-      handle
+      handle,
     };
   }
 
@@ -119,7 +123,7 @@ export class FileTreeService {
    * Flatten tree for easier rendering
    */
   flattenTree(
-    nodes: FileTreeNode[], 
+    nodes: FileTreeNode[],
     expandedFolders: Set<string>
   ): FileTreeNode[] {
     const result: FileTreeNode[] = [];
@@ -160,7 +164,11 @@ export class FileTreeService {
   /**
    * Count files and folders in tree
    */
-  getTreeStats(nodes: FileTreeNode[]): { files: number; folders: number; markdownFiles: number } {
+  getTreeStats(nodes: FileTreeNode[]): {
+    files: number;
+    folders: number;
+    markdownFiles: number;
+  } {
     let files = 0;
     let folders = 0;
     let markdownFiles = 0;
@@ -188,7 +196,7 @@ export class FileTreeService {
     if (!fileHandle || fileHandle.kind !== 'file') {
       throw new Error('Invalid file handle');
     }
-    
+
     return await fileHandle.getFile();
   }
 }

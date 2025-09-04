@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { MarkdownFile } from '../types/markdown';
-import FileService, { FileValidationError, FileOperationError } from '../services/FileService';
+import FileService, {
+  FileValidationError,
+  FileOperationError,
+} from '../services/FileService';
 
 interface UseMarkdownFileReturn {
   currentFile: MarkdownFile | null;
@@ -31,7 +34,7 @@ export const useMarkdownFile = (): UseMarkdownFileReturn => {
       }
     } catch (err) {
       let errorMessage = 'Failed to open file';
-      
+
       if (err instanceof FileValidationError) {
         errorMessage = `File validation error: ${err.message}`;
       } else if (err instanceof FileOperationError) {
@@ -39,7 +42,7 @@ export const useMarkdownFile = (): UseMarkdownFileReturn => {
       } else if (err instanceof Error) {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
       console.error('File open error:', err);
     } finally {
@@ -47,48 +50,54 @@ export const useMarkdownFile = (): UseMarkdownFileReturn => {
     }
   }, [fileService]);
 
-  const loadFile = useCallback(async (file: File) => {
-    setIsLoading(true);
-    setError(null);
+  const loadFile = useCallback(
+    async (file: File) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      // Use the file service to process the file into a MarkdownFile
-      const content = await file.text();
-      const markdownFile = await fileService.processFile(file, content);
-      setCurrentFile(markdownFile);
-    } catch (err) {
-      let errorMessage = 'Failed to load file';
-      
-      if (err instanceof FileValidationError) {
-        errorMessage = `File validation error: ${err.message}`;
-      } else if (err instanceof FileOperationError) {
-        errorMessage = `File operation error: ${err.message}`;
-      } else if (err instanceof Error) {
-        errorMessage = err.message;
+      try {
+        // Use the file service to process the file into a MarkdownFile
+        const content = await file.text();
+        const markdownFile = await fileService.processFile(file, content);
+        setCurrentFile(markdownFile);
+      } catch (err) {
+        let errorMessage = 'Failed to load file';
+
+        if (err instanceof FileValidationError) {
+          errorMessage = `File validation error: ${err.message}`;
+        } else if (err instanceof FileOperationError) {
+          errorMessage = `File operation error: ${err.message}`;
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+
+        setError(errorMessage);
+        console.error('File load error:', err);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setError(errorMessage);
-      console.error('File load error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fileService]);
+    },
+    [fileService]
+  );
 
-  const saveFile = useCallback(async (content: string) => {
-    if (!currentFile) return;
+  const saveFile = useCallback(
+    async (content: string) => {
+      if (!currentFile) return;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      await fileService.saveFile(currentFile, content);
-      setCurrentFile(prev => prev ? { ...prev, content } : null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save file');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentFile, fileService]);
+      try {
+        await fileService.saveFile(currentFile, content);
+        setCurrentFile(prev => (prev ? { ...prev, content } : null));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to save file');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [currentFile, fileService]
+  );
 
   const closeFile = useCallback(() => {
     setCurrentFile(null);
@@ -96,7 +105,7 @@ export const useMarkdownFile = (): UseMarkdownFileReturn => {
   }, []);
 
   const updateContent = useCallback((content: string) => {
-    setCurrentFile(prev => prev ? { ...prev, content } : null);
+    setCurrentFile(prev => (prev ? { ...prev, content } : null));
   }, []);
 
   return {

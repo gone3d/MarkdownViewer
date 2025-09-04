@@ -27,7 +27,6 @@ const Header: React.FC<HeaderProps> = ({
   isDarkMode,
   onThemeToggle,
 }) => {
-
   return (
     <header className="px-4 h-16 flex items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-4">
@@ -48,8 +47,8 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-center h-10 w-10 bg-primary-600 text-white rounded-lg flex-shrink-0">
           <FileText className="h-5 w-5" />
         </div>
-        <h1 
-          className="text-xl font-bold text-gray-900 dark:text-gray-100 cursor-default" 
+        <h1
+          className="text-xl font-bold text-gray-900 dark:text-gray-100 cursor-default"
           title={`Version ${packageJson.version}`}
         >
           MarkdownViewer
@@ -72,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({
           onClick={onSave}
           disabled={!hasFile || !onSave}
           className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
-          title={hasFile ? "Save file (Ctrl+S)" : "No file to save"}
+          title={hasFile ? 'Save file (Ctrl+S)' : 'No file to save'}
         >
           <Save className="h-4 w-4" />
           Save File
@@ -80,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* View Mode Selector */}
         <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-          {(['viewer', 'editor', 'split'] as ViewMode[]).map((mode) => (
+          {(['viewer', 'editor', 'split'] as ViewMode[]).map(mode => (
             <button
               key={mode}
               onClick={() => onViewModeChange(mode)}
@@ -101,9 +100,9 @@ const Header: React.FC<HeaderProps> = ({
         {/* Theme Toggle */}
         <div className="theme-toggle">
           <span className="toggle-text">{isDarkMode ? 'Dark' : 'Light'}</span>
-          <input 
-            type="checkbox" 
-            id="theme-toggle" 
+          <input
+            type="checkbox"
+            id="theme-toggle"
             checked={isDarkMode}
             onChange={onThemeToggle}
           />

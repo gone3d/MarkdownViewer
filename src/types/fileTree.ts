@@ -19,7 +19,7 @@ export interface FileTreeState {
   rootPath: string | null;
 }
 
-export type FileTreeAction = 
+export type FileTreeAction =
   | { type: 'SET_TREE'; payload: FileTreeNode[] }
   | { type: 'TOGGLE_FOLDER'; payload: string }
   | { type: 'SELECT_FILE'; payload: string }

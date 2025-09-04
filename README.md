@@ -16,6 +16,14 @@ A modern, local/server application for viewing, editing, and organizing markdown
 
 MarkdownViewer is designed to be the definitive solution for markdown file management, bridging the gap between simple text editors and complex IDEs. It provides a seamless experience for viewing, editing, and organizing markdown content with an intuitive interface that makes complex markdown management feel effortless.
 
+### 🚀 Recent Major Updates
+
+- **🎨 Advanced Syntax Highlighting**: VS Code-authentic editor colors with two-layer architecture
+- **💾 Smart Save Operations**: Files save to original location using File System Access API
+- **🧠 Intelligent Code Parsing**: TOC excludes `#` characters inside code blocks and fenced regions
+- **⚡ Performance Optimizations**: Memoized components prevent duplicate processing
+- **🎯 Enhanced Navigation**: Improved header anchor generation with clean URL-friendly IDs
+
 ### Core Vision
 
 - **Effortless Markdown Management**: Make working with markdown files as simple as possible
@@ -34,9 +42,11 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 
 ### Editing Features
 
-- Lightweight markdown editor with custom syntax highlighting
+- **Advanced Syntax Highlighting**: Custom two-layer editor with VS Code-authentic colors
+- **Smart File Operations**: Save directly to original file location (no more downloads!)
+- **Intelligent Parsing**: TOC generation that properly ignores code blocks
 - Live preview while editing with synchronized scrolling
-- Auto-save functionality
+- Auto-save functionality (configurable)
 - File management (create, rename, delete)
 
 ### Organization Features
@@ -52,9 +62,10 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 ### Frontend
 
 - **React 18** with TypeScript for robust UI development
-- **Vite** for fast development and optimized production builds
+- **Vite 6** for fast development and optimized production builds
 - **Tailwind CSS** for utility-first styling with custom theme system
-- **Custom Markdown Parser** for syntax highlighting and editor assistance
+- **Custom Markdown Parser** with advanced tokenization for syntax highlighting
+- **File System Access API** integration for native file operations
 
 ### Markdown Processing
 
@@ -96,19 +107,25 @@ npm run dev
 # Start dev server with hot reload
 npm run dev
 
-# Run tests
-npm run test
+# Build production version
+npm run build
 
-# Run tests in watch mode
-npm run test:watch
+# Preview production build
+npm run preview
 
 # Lint code
 npm run lint
 
+# Fix linting issues automatically
+npm run lint:fix
+
 # Format code with Prettier
 npm run format
 
-# Type check
+# Check formatting without changes
+npm run format:check
+
+# Type check TypeScript
 npm run type-check
 ```
 
@@ -175,12 +192,13 @@ npx serve dist
 
 ### Core Components
 
-- **MarkdownViewer**: Main rendering component with syntax highlighting
-- **MarkdownEditor**: Live editing with preview capabilities
-- **FileBrowser**: Tree-view file navigation with folder management
-- **TableOfContents**: Auto-generated TOC from markdown headers
-- **SearchInterface**: Full-text search across all markdown files
-- **MediaManager**: Handle images, videos, animations in markdown
+- **MarkdownViewer**: Advanced rendering with custom header components and anchor linking
+- **SyntaxHighlightedEditor**: Two-layer transparent textarea with VS Code color themes
+- **FileBrowser**: Tree-view navigation with File System Access API integration
+- **TableOfContents**: Smart TOC generation that excludes code block headers
+- **Header**: Unified navigation with Save File button and theme toggle
+- **SearchInterface**: Full-text search across markdown files (planned)
+- **MediaManager**: Handle images, videos, animations (planned)
 
 ## Development
 

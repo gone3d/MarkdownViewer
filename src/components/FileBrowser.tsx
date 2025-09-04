@@ -1,15 +1,15 @@
 import React from 'react';
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Folder, 
-  FolderOpen, 
-  File, 
+import {
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  FolderOpen,
+  File,
   FileText,
   Loader2,
   AlertCircle,
   HardDrive,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react';
 import { FileTreeNode } from '../types/fileTree';
 import { useFileTree } from '../hooks/useFileTree';
@@ -21,24 +21,24 @@ interface FileBrowserProps {
   className?: string;
 }
 
-const FileBrowser: React.FC<FileBrowserProps> = ({ 
-  onFileSelect, 
+const FileBrowser: React.FC<FileBrowserProps> = ({
+  onFileSelect,
   onFileOpen,
   fileTree: externalFileTree,
-  className = '' 
+  className = '',
 }) => {
   const internalFileTree = useFileTree();
   const fileTree = externalFileTree || internalFileTree;
-  
-  const { 
-    treeState, 
-    isLoading, 
-    error, 
-    flatTree, 
+
+  const {
+    treeState,
+    isLoading,
+    error,
+    flatTree,
     treeStats,
-    openDirectory, 
-    toggleFolder, 
-    selectFile 
+    openDirectory,
+    toggleFolder,
+    selectFile,
   } = fileTree;
 
   // Handle file click
@@ -75,7 +75,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
       const isExpanded = treeState.expandedFolders.has(node.id);
       return isExpanded ? FolderOpen : Folder;
     }
-    
+
     return node.isMarkdown ? FileText : File;
   };
 
@@ -153,7 +153,9 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
             <div className="text-center text-gray-500 dark:text-gray-400">
               <Folder className="h-12 w-12 mx-auto mb-3" />
               <p className="text-sm font-medium mb-2">No folder selected</p>
-              <p className="text-xs mb-4">Choose a folder to browse markdown files</p>
+              <p className="text-xs mb-4">
+                Choose a folder to browse markdown files
+              </p>
               <button
                 onClick={openDirectory}
                 className="text-xs px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded transition-colors"
@@ -167,18 +169,21 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
         {/* File tree */}
         {flatTree.length > 0 && (
           <div className="p-2">
-            {flatTree.map((node) => {
+            {flatTree.map(node => {
               const Icon = getFileIcon(node);
               const isSelected = treeState.selectedFile === node.id;
-              const hasChildren = node.type === 'folder' && node.children && node.children.length > 0;
+              const hasChildren =
+                node.type === 'folder' &&
+                node.children &&
+                node.children.length > 0;
               const isExpanded = treeState.expandedFolders.has(node.id);
 
               return (
                 <div key={node.id} className="group">
                   <div
                     className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
-                      isSelected 
-                        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200' 
+                      isSelected
+                        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200'
                         : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                     style={{ marginLeft: `${node.depth * 16}px` }}
@@ -194,7 +199,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
                     {node.type === 'folder' && (
                       <button
                         className="flex-shrink-0 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           handleFolderClick(node);
                         }}
@@ -217,20 +222,20 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
                     )}
 
                     {/* Icon */}
-                    <Icon 
+                    <Icon
                       className={`h-4 w-4 flex-shrink-0 ${
-                        node.type === 'folder' 
-                          ? 'text-blue-600 dark:text-blue-400' 
-                          : node.isMarkdown 
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-gray-500 dark:text-gray-400'
-                      }`} 
+                        node.type === 'folder'
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : node.isMarkdown
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-gray-500 dark:text-gray-400'
+                      }`}
                     />
 
                     {/* Open button for selected markdown files */}
                     {isSelected && canOpenFile(node) && (
                       <button
-                        onClick={(e) => handleFileOpen(node, e)}
+                        onClick={e => handleFileOpen(node, e)}
                         className="p-1 hover:bg-primary-200 dark:hover:bg-primary-800 text-primary-600 dark:text-primary-400 rounded transition-colors flex-shrink-0"
                         title="Open file"
                       >
@@ -239,10 +244,10 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
                     )}
 
                     {/* Name */}
-                    <span 
+                    <span
                       className={`flex-1 text-sm truncate ${
-                        isSelected 
-                          ? 'font-medium' 
+                        isSelected
+                          ? 'font-medium'
                           : 'text-gray-700 dark:text-gray-300'
                       }`}
                       title={node.name}
