@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ViewMode } from './types/markdown';
 import { useMarkdownFile } from './hooks/useMarkdownFile';
 import { useTheme } from './hooks/useTheme';
 import { useFileTree } from './hooks/useFileTree';
+import { precomputeHeaderIds } from './utils/slugify';
 import Header from './components/Header';
 import AppShell from './components/AppShell';
 import Footer from './components/Footer';
@@ -14,6 +15,11 @@ function App() {
   const { currentFile, isLoading, error, openFile, loadFile, saveFile, updateContent } = useMarkdownFile();
   const { actualTheme, toggleTheme } = useTheme();
   const fileTree = useFileTree();
+
+  // Pre-compute header IDs for synchronization between TOC and Viewer
+  const headerIds = useMemo(() => {
+    return currentFile?.content ? precomputeHeaderIds(currentFile.content) : new Map();
+  }, [currentFile?.content]);
 
   const handleOpenFile = async () => {
     await openFile();
@@ -80,6 +86,7 @@ function App() {
         onContentChange={handleContentChange}
         onSave={handleSave}
         fileTree={fileTree}
+        headerIds={headerIds}
       />
       <Footer currentFile={currentFile} />
     </div>

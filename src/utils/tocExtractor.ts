@@ -1,3 +1,5 @@
+import { precomputeHeaderIds } from './slugify';
+
 export interface TOCItem {
   id: string;
   text: string;
@@ -6,54 +8,24 @@ export interface TOCItem {
 }
 
 /**
- * Generate anchor ID from text content with duplicate handling (matches rehype-slug behavior)
+ * Extract table of contents from markdown content using pre-computed header IDs
  */
-export const generateAnchorId = (text: string, existingIds: Set<string>): string => {
-  const baseId = text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')     // Remove non-word chars except spaces and dashes
-    .replace(/[\s_-]+/g, '-')     // Replace spaces, underscores, dashes with single dash
-    .replace(/^-+|-+$/g, '')      // Remove leading/trailing dashes
-    || 'heading';
-  
-  // If the ID is unique, return it
-  if (!existingIds.has(baseId)) {
-    existingIds.add(baseId);
-    return baseId;
-  }
-  
-  // Handle duplicates by adding numbered suffix (start at 2 to match rehype-slug)
-  let counter = 2;
-  let uniqueId = `${baseId}-${counter}`;
-  
-  while (existingIds.has(uniqueId)) {
-    counter++;
-    uniqueId = `${baseId}-${counter}`;
-  }
-  
-  existingIds.add(uniqueId);
-  return uniqueId;
-};
-
-/**
- * Extract table of contents from markdown content
- */
-export const extractTableOfContents = (content: string): TOCItem[] => {
+export const extractTableOfContents = (content: string, headerIds?: Map<string, string>): TOCItem[] => {
   if (!content) return [];
+
+  // Pre-compute header IDs if not provided
+  const idMap = headerIds || precomputeHeaderIds(content);
 
   // Match markdown headers (# Header, ## Header, etc.)
   const headerRegex = /^(#{1,6})\s+(.+)$/gm;
   const matches = Array.from(content.matchAll(headerRegex));
 
   if (matches.length === 0) return [];
-
-  // Track used IDs to handle duplicates
-  const existingIds = new Set<string>();
   
   const flatItems: Array<{ id: string; text: string; level: number }> = matches.map(match => {
     const level = match[1].length; // Number of # characters
     const text = match[2].trim();
-    const id = generateAnchorId(text, existingIds);
+    const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
     
     return { id, text, level };
   });

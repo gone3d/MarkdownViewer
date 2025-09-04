@@ -34,7 +34,7 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 
 ### Editing Features
 
-- Syntax-highlighted markdown editor with CodeMirror 6
+- Lightweight markdown editor with custom syntax highlighting
 - Live preview while editing with synchronized scrolling
 - Auto-save functionality
 - File management (create, rename, delete)
@@ -54,7 +54,7 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 - **React 18** with TypeScript for robust UI development
 - **Vite** for fast development and optimized production builds
 - **Tailwind CSS** for utility-first styling with custom theme system
-- **CodeMirror 6** for advanced code editing capabilities
+- **Custom Markdown Parser** for syntax highlighting and editor assistance
 
 ### Markdown Processing
 
