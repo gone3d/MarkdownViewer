@@ -8,6 +8,7 @@ export interface MarkdownFile {
   created: Date;
   tags?: string[];
   metadata?: Record<string, any>;
+  fileHandle?: FileSystemFileHandle; // For File System Access API
 }
 
 export interface MarkdownFolder {

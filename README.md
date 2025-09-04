@@ -1,6 +1,6 @@
 # MarkdownViewer
 
-A modern, local/server application for viewing, editing, and organizing markdown files with advanced features like automatic table of contents generation and media asset management.
+A modern, local/server application for viewing, editing, and organizing markdown files with advanced features like automatic table of contents generation and media asset management. Future development will integrate AI(s) to aid in content and editing.
 
 ## Table of Contents
 

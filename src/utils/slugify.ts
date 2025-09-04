@@ -52,18 +52,96 @@ export const generateUniqueSlug = (text: string, existingIds: Set<string>): stri
 export const precomputeHeaderIds = (content: string): Map<string, string> => {
   if (!content) return new Map();
 
-  // Match markdown headers (# Header, ## Header, etc.)
-  const headerRegex = /^#{1,6}\s+(.+)$/gm;
-  const matches = Array.from(content.matchAll(headerRegex));
+  // Extract real headers, excluding those in code blocks
+  const headers = extractMarkdownHeaders(content);
   
   const headerIds = new Map<string, string>();
   const usedIds = new Set<string>();
   
-  matches.forEach(match => {
-    const text = match[1].trim();
+  headers.forEach(text => {
     const id = generateUniqueSlug(text, usedIds);
     headerIds.set(text, id);
   });
   
   return headerIds;
 };
+
+/**
+ * Extract markdown headers while ignoring those inside code blocks
+ */
+export const extractMarkdownHeaders = (content: string): string[] => {
+  if (!content) return [];
+  
+  const lines = content.split('\n');
+  const headers: string[] = [];
+  let inFencedCodeBlock = false;
+  let fencePattern = '';
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmedLine = line.trim();
+    
+    // Check for fenced code block start/end
+    const fenceMatch = trimmedLine.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      if (!inFencedCodeBlock) {
+        // Starting a code block
+        inFencedCodeBlock = true;
+        fencePattern = fenceMatch[1][0]; // Either ` or ~
+      } else if (trimmedLine.startsWith(fencePattern.repeat(3))) {
+        // Ending a code block (must be same character and at least 3 of them)
+        inFencedCodeBlock = false;
+        fencePattern = '';
+      }
+      continue;
+    }
+    
+    // Skip if we're inside a fenced code block
+    if (inFencedCodeBlock) continue;
+    
+    // Skip indented code blocks (4+ spaces or 1+ tabs at start)
+    if (line.match(/^(\s{4,}|\t+)/)) continue;
+    
+    // Check for headers (# Header, ## Header, etc.)
+    const headerMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
+    if (headerMatch) {
+      const headerText = headerMatch[2].trim();
+      
+      // Additional check: skip if the header text contains only backticks or is inside inline code
+      if (!headerText.match(/^`+$/) && !isInsideInlineCode(line, headerMatch.index || 0)) {
+        headers.push(headerText);
+      }
+    }
+  }
+  
+  return headers;
+};
+
+/**
+ * Check if a position in a line is inside inline code (`...`)
+ */
+function isInsideInlineCode(line: string, position: number): boolean {
+  let inInlineCode = false;
+  let i = 0;
+  
+  while (i < position && i < line.length) {
+    if (line[i] === '`') {
+      // Count consecutive backticks
+      let backtickCount = 0;
+      while (i < line.length && line[i] === '`') {
+        backtickCount++;
+        i++;
+      }
+      
+      if (backtickCount === 1) {
+        inInlineCode = !inInlineCode;
+      }
+      // For multiple backticks, we'd need more complex logic
+      // but for now, assume single backticks are most common
+    } else {
+      i++;
+    }
+  }
+  
+  return inInlineCode;
+}
