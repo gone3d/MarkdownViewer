@@ -313,8 +313,17 @@ class FileService {
 
   public async saveFile(file: MarkdownFile, content: string): Promise<boolean> {
     try {
+      // Debug logging
+      console.log('Save attempt:', {
+        fileName: file.name,
+        hasFileHandle: !!file.fileHandle,
+        fileSystemSupported: this.fileSystemSupported,
+        filePath: file.path
+      });
+
       // Use File System Access API if we have a fileHandle
       if (file.fileHandle && this.fileSystemSupported) {
+        console.log('Using File System Access API for save');
         const writable = await file.fileHandle.createWritable();
         await writable.write(content);
         await writable.close();
@@ -323,6 +332,7 @@ class FileService {
 
       // Fallback: trigger download for browsers without File System Access API support
       // or for files that don't have a fileHandle
+      console.log('Falling back to download - no fileHandle available');
       return this.downloadFile(file.name, content);
     } catch (error) {
       console.error('Error saving file:', error);

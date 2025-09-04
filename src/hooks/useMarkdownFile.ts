@@ -14,12 +14,14 @@ interface UseMarkdownFileReturn {
   saveFile: (content: string) => Promise<void>;
   closeFile: () => void;
   updateContent: (content: string) => void;
+  lastSaveTime: Date | null;
 }
 
 export const useMarkdownFile = (): UseMarkdownFileReturn => {
   const [currentFile, setCurrentFile] = useState<MarkdownFile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
 
   const fileService = FileService.getInstance();
 
@@ -90,6 +92,7 @@ export const useMarkdownFile = (): UseMarkdownFileReturn => {
       try {
         await fileService.saveFile(currentFile, content);
         setCurrentFile(prev => (prev ? { ...prev, content } : null));
+        setLastSaveTime(new Date()); // Track manual save time
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to save file');
       } finally {
@@ -117,5 +120,6 @@ export const useMarkdownFile = (): UseMarkdownFileReturn => {
     saveFile,
     closeFile,
     updateContent,
+    lastSaveTime,
   };
 };

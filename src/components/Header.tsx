@@ -1,8 +1,11 @@
 // src/components/Header.tsx
 
+import { useState } from 'react';
 import packageJson from '../../package.json';
 import { ViewMode } from '../types/markdown';
-import { FolderOpen, Menu, X, FileText, Sun, Moon, Save } from 'lucide-react';
+import { FolderOpen, Menu, X, FileText, Sun, Moon, Save, Info } from 'lucide-react';
+import FileInfoModal from './FileInfoModal';
+import { useAppContext } from '../contexts/AppContext';
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -27,6 +30,9 @@ const Header: React.FC<HeaderProps> = ({
   isDarkMode,
   onThemeToggle,
 }) => {
+  const [isFileInfoOpen, setIsFileInfoOpen] = useState(false);
+  const { state } = useAppContext();
+  const hasUnsavedChanges = state.currentFile?.hasUnsavedChanges ?? false;
   return (
     <header className="px-4 h-16 flex items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-4">
@@ -47,12 +53,20 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-center h-10 w-10 bg-primary-600 text-white rounded-lg flex-shrink-0">
           <FileText className="h-5 w-5" />
         </div>
-        <h1
-          className="text-xl font-bold text-gray-900 dark:text-gray-100 cursor-default"
-          title={`Version ${packageJson.version}`}
-        >
-          MarkdownViewer
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1
+            className="text-xl font-bold text-gray-900 dark:text-gray-100 cursor-default"
+            title={`Version ${packageJson.version}`}
+          >
+            MarkdownViewer
+          </h1>
+          {hasUnsavedChanges && (
+            <div 
+              className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"
+              title="Unsaved changes"
+            />
+          )}
+        </div>
       </div>
 
       {/* Center - File Operations and View Mode */}
@@ -75,6 +89,17 @@ const Header: React.FC<HeaderProps> = ({
         >
           <Save className="h-4 w-4" />
           Save File
+        </button>
+
+        {/* File Info Button */}
+        <button
+          onClick={() => setIsFileInfoOpen(true)}
+          disabled={!hasFile}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
+          title={hasFile ? 'View file information and statistics' : 'No file loaded'}
+        >
+          <Info className="h-4 w-4" />
+          File Info
         </button>
 
         {/* View Mode Selector */}
@@ -114,6 +139,12 @@ const Header: React.FC<HeaderProps> = ({
           </label>
         </div>
       </div>
+
+      {/* File Info Modal */}
+      <FileInfoModal
+        isOpen={isFileInfoOpen}
+        onClose={() => setIsFileInfoOpen(false)}
+      />
     </header>
   );
 };
