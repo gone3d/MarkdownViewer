@@ -31,6 +31,7 @@ interface AppState {
 type AppAction =
   | { type: 'SET_CURRENT_FILE'; payload: FileState | null }
   | { type: 'UPDATE_FILE_CONTENT'; payload: { content: string; forceUnsaved?: boolean } }
+  | { type: 'UPDATE_FILE_NAME'; payload: string }
   | { type: 'MARK_FILE_SAVED'; payload: Date }
   | { type: 'SET_FILE_LOADING'; payload: boolean }
   | { type: 'SET_FILE_ERROR'; payload: string | null }
@@ -49,7 +50,10 @@ interface AppContextType {
   openFile: () => Promise<void>;
   loadFile: (file: File) => Promise<void>;
   saveFile: (content?: string) => Promise<void>;
-  createFile: (name: string) => Promise<void>;
+  createFile: (name?: string) => Promise<void>;
+  renameFile: (newName: string) => Promise<void>;
+  duplicateFile: (newName?: string) => Promise<void>;
+  deleteFile: () => Promise<boolean>; // Returns true if confirmed and deleted
   closeFile: () => void;
   updateFileContent: (content: string, markAsUnsaved?: boolean) => void;
   // UI operations  
@@ -112,6 +116,21 @@ function appReducer(state: AppState, action: AppAction): AppState {
             content: newContent,
           },
           hasUnsavedChanges: hasChanges,
+          lastModifiedTime: new Date(),
+        },
+      };
+
+    case 'UPDATE_FILE_NAME':
+      if (!state.currentFile) return state;
+      return {
+        ...state,
+        currentFile: {
+          ...state.currentFile,
+          file: {
+            ...state.currentFile.file,
+            name: action.payload,
+          },
+          hasUnsavedChanges: true, // Name change means file needs saving
           lastModifiedTime: new Date(),
         },
       };
@@ -296,15 +315,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [state.currentFile, fileService]);
 
-  const createFile = useCallback(async (name: string) => {
+  const createFile = useCallback(async (name?: string) => {
     dispatch({ type: 'SET_GLOBAL_LOADING', payload: true });
     dispatch({ type: 'SET_GLOBAL_ERROR', payload: null });
 
     try {
+      // Generate a default name if none provided
+      const fileName = name || `untitled-${Date.now()}`;
+      const fullName = fileName.endsWith('.md') ? fileName : `${fileName}.md`;
+      
       // Create a new blank markdown file
       const newFile: MarkdownFile = {
         id: Date.now().toString(),
-        name: name.endsWith('.md') ? name : `${name}.md`,
+        name: fullName,
         path: '',
         content: '',
         size: 0,
@@ -331,6 +354,95 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       dispatch({ type: 'SET_GLOBAL_LOADING', payload: false });
     }
   }, []);
+
+  const renameFile = useCallback(async (newName: string) => {
+    if (!state.currentFile) return;
+
+    dispatch({ type: 'SET_FILE_LOADING', payload: true });
+    dispatch({ type: 'SET_FILE_ERROR', payload: null });
+
+    try {
+      const fullName = newName.endsWith('.md') ? newName : `${newName}.md`;
+      dispatch({ type: 'UPDATE_FILE_NAME', payload: fullName });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to rename file';
+      dispatch({ type: 'SET_FILE_ERROR', payload: errorMessage });
+    } finally {
+      dispatch({ type: 'SET_FILE_LOADING', payload: false });
+    }
+  }, [state.currentFile]);
+
+  const duplicateFile = useCallback(async (newName?: string) => {
+    if (!state.currentFile) return;
+
+    dispatch({ type: 'SET_GLOBAL_LOADING', payload: true });
+    dispatch({ type: 'SET_GLOBAL_ERROR', payload: null });
+
+    try {
+      const originalFile = state.currentFile.file;
+      const baseName = newName || `${originalFile.name.replace('.md', '')}-copy`;
+      const fullName = baseName.endsWith('.md') ? baseName : `${baseName}.md`;
+
+      // Create a duplicate file with same content
+      const duplicateFile: MarkdownFile = {
+        id: Date.now().toString(),
+        name: fullName,
+        path: '',
+        content: originalFile.content,
+        size: originalFile.content.length,
+        lastModified: new Date(),
+        created: new Date(),
+        tags: [...(originalFile.tags || [])],
+        metadata: { ...originalFile.metadata },
+      };
+
+      const fileState: FileState = {
+        file: duplicateFile,
+        originalContent: originalFile.content,
+        hasUnsavedChanges: true, // Duplicate needs to be saved
+        lastSaveTime: null,
+        lastModifiedTime: new Date(),
+        isLoading: false,
+        error: null,
+      };
+
+      dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to duplicate file';
+      dispatch({ type: 'SET_GLOBAL_ERROR', payload: errorMessage });
+    } finally {
+      dispatch({ type: 'SET_GLOBAL_LOADING', payload: false });
+    }
+  }, [state.currentFile]);
+
+  const deleteFile = useCallback(async (): Promise<boolean> => {
+    if (!state.currentFile) return false;
+
+    const fileName = state.currentFile.file.name;
+    
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${fileName}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return false;
+
+    dispatch({ type: 'SET_GLOBAL_LOADING', payload: true });
+    dispatch({ type: 'SET_GLOBAL_ERROR', payload: null });
+
+    try {
+      // For now, just clear the current file since we don't have file system deletion
+      // In a real app, you would delete from the file system here
+      dispatch({ type: 'CLEAR_CURRENT_FILE' });
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete file';
+      dispatch({ type: 'SET_GLOBAL_ERROR', payload: errorMessage });
+      return false;
+    } finally {
+      dispatch({ type: 'SET_GLOBAL_LOADING', payload: false });
+    }
+  }, [state.currentFile]);
 
   const closeFile = useCallback(() => {
     dispatch({ type: 'CLEAR_CURRENT_FILE' });
@@ -406,6 +518,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     loadFile,
     saveFile,
     createFile,
+    renameFile,
+    duplicateFile,
+    deleteFile,
     closeFile,
     updateFileContent,
     setViewMode,
