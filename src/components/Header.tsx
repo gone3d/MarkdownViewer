@@ -2,12 +2,14 @@
 
 import packageJson from '../../package.json';
 import { ViewMode } from '../types/markdown';
-import { FolderOpen, Menu, X, FileText, Sun, Moon } from 'lucide-react';
+import { FolderOpen, Menu, X, FileText, Sun, Moon, Save } from 'lucide-react';
 
 interface HeaderProps {
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
   onOpenFile: () => void;
+  onSave?: () => void;
+  hasFile?: boolean;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   isDarkMode: boolean;
@@ -18,6 +20,8 @@ const Header: React.FC<HeaderProps> = ({
   sidebarOpen,
   onToggleSidebar,
   onOpenFile,
+  onSave,
+  hasFile,
   viewMode,
   onViewModeChange,
   isDarkMode,
@@ -61,6 +65,17 @@ const Header: React.FC<HeaderProps> = ({
         >
           <FolderOpen className="h-4 w-4" />
           Open File
+        </button>
+
+        {/* Save File Button */}
+        <button
+          onClick={onSave}
+          disabled={!hasFile || !onSave}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm"
+          title={hasFile ? "Save file (Ctrl+S)" : "No file to save"}
+        >
+          <Save className="h-4 w-4" />
+          Save File
         </button>
 
         {/* View Mode Selector */}

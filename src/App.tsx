@@ -64,12 +64,20 @@ function App() {
     }
   };
 
+  const handleHeaderSave = async () => {
+    if (currentFile) {
+      await handleSave(currentFile.content);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <Header
         sidebarOpen={sidebarOpen}
         onToggleSidebar={toggleSidebar}
         onOpenFile={handleOpenFile}
+        onSave={handleHeaderSave}
+        hasFile={!!currentFile}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         isDarkMode={actualTheme === 'dark'}

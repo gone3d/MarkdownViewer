@@ -152,6 +152,7 @@ class FileService {
         lastModified: new Date(file.lastModified),
         created: new Date(file.lastModified),
         metadata,
+        fileHandle, // Store the fileHandle for later saving
       };
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
@@ -297,18 +298,43 @@ class FileService {
   }
 
   public async saveFile(file: MarkdownFile, content: string): Promise<boolean> {
-    // Implementation depends on whether we have file handles or need to download
-    // For now, trigger download
-    const blob = new Blob([content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    return true;
+    try {
+      // Use File System Access API if we have a fileHandle
+      if (file.fileHandle && this.fileSystemSupported) {
+        const writable = await file.fileHandle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        return true;
+      }
+      
+      // Fallback: trigger download for browsers without File System Access API support
+      // or for files that don't have a fileHandle
+      return this.downloadFile(file.name, content);
+    } catch (error) {
+      console.error('Error saving file:', error);
+      
+      // If File System Access API fails, fall back to download
+      console.warn('File System Access API save failed, falling back to download');
+      return this.downloadFile(file.name, content);
+    }
+  }
+
+  private downloadFile(fileName: string, content: string): boolean {
+    try {
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return true;
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      return false;
+    }
   }
 }
 

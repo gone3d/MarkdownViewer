@@ -1,4 +1,4 @@
-import { precomputeHeaderIds } from './slugify';
+import { precomputeHeaderIds, extractMarkdownHeaders } from './slugify';
 
 export interface TOCItem {
   id: string;
@@ -16,19 +16,50 @@ export const extractTableOfContents = (content: string, headerIds?: Map<string, 
   // Pre-compute header IDs if not provided
   const idMap = headerIds || precomputeHeaderIds(content);
 
-  // Match markdown headers (# Header, ## Header, etc.)
-  const headerRegex = /^(#{1,6})\s+(.+)$/gm;
-  const matches = Array.from(content.matchAll(headerRegex));
-
-  if (matches.length === 0) return [];
+  // Extract headers while avoiding code blocks
+  const headerTexts = extractMarkdownHeaders(content);
   
-  const flatItems: Array<{ id: string; text: string; level: number }> = matches.map(match => {
-    const level = match[1].length; // Number of # characters
-    const text = match[2].trim();
-    const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+  if (headerTexts.length === 0) return [];
+  
+  // Build flat items with proper level detection
+  const flatItems: Array<{ id: string; text: string; level: number }> = [];
+  
+  // Re-scan content to get header levels for extracted headers
+  const lines = content.split('\n');
+  let inFencedCodeBlock = false;
+  let fencePattern = '';
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim();
     
-    return { id, text, level };
-  });
+    // Track fenced code blocks
+    const fenceMatch = trimmedLine.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      if (!inFencedCodeBlock) {
+        inFencedCodeBlock = true;
+        fencePattern = fenceMatch[1][0];
+      } else if (trimmedLine.startsWith(fencePattern.repeat(3))) {
+        inFencedCodeBlock = false;
+        fencePattern = '';
+      }
+      continue;
+    }
+    
+    if (inFencedCodeBlock) continue;
+    if (line.match(/^(\s{4,}|\t+)/)) continue;
+    
+    const headerMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
+    if (headerMatch) {
+      const level = headerMatch[1].length;
+      const text = headerMatch[2].trim();
+      
+      // Only include if this header text was extracted by extractMarkdownHeaders
+      if (headerTexts.includes(text)) {
+        const id = idMap.get(text) || text.toLowerCase().replace(/\s+/g, '-');
+        flatItems.push({ id, text, level });
+      }
+    }
+  }
 
   // Build nested structure
   return buildNestedTOC(flatItems);
