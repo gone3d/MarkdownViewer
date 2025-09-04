@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from 'react';
 import { MarkdownFile, ViewMode } from '../types/markdown';
 import FileService, {
   FileValidationError,
@@ -79,12 +79,25 @@ export interface FileStatistics {
   estimatedReadTime: number;
 }
 
-// Initial state
+// Initial state with system theme detection
+const getInitialTheme = (): 'light' | 'dark' => {
+  // Check localStorage first
+  const savedTheme = localStorage.getItem('markdownviewer-theme') as 'light' | 'dark' | null;
+  if (savedTheme) return savedTheme;
+  
+  // Fall back to system preference
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  
+  return 'light';
+};
+
 const initialState: AppState = {
   currentFile: null,
   viewMode: 'viewer',
   sidebarOpen: true,
-  theme: 'light',
+  theme: getInitialTheme(),
   recentFiles: [],
   globalLoading: false,
   globalError: null,
@@ -228,6 +241,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const fileService = FileService.getInstance();
 
+  // Apply theme to document and persist to localStorage
+  useEffect(() => {
+    if (state.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Persist theme preference
+    localStorage.setItem('markdownviewer-theme', state.theme);
+  }, [state.theme]);
+
   // File operations
   const openFile = useCallback(async () => {
     dispatch({ type: 'SET_GLOBAL_LOADING', payload: true });
@@ -304,9 +329,30 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_FILE_ERROR', payload: null });
 
     try {
-      await fileService.saveFile(state.currentFile.file, contentToSave);
-      dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content: contentToSave, hasUnsavedChanges: false } });
-      dispatch({ type: 'MARK_FILE_SAVED', payload: new Date() });
+      const result = await fileService.saveFile(state.currentFile.file, contentToSave);
+      
+      if (result.success) {
+        // If we got a new fileHandle (from save-as dialog), update the file
+        if (result.fileHandle && !state.currentFile.file.fileHandle) {
+          dispatch({
+            type: 'SET_CURRENT_FILE',
+            payload: {
+              ...state.currentFile,
+              file: {
+                ...state.currentFile.file,
+                fileHandle: result.fileHandle,
+                path: result.fileHandle.name,
+              }
+            }
+          });
+        }
+        
+        dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content: contentToSave, forceUnsaved: false } });
+        dispatch({ type: 'MARK_FILE_SAVED', payload: new Date() });
+      } else {
+        // User cancelled save dialog or save failed
+        return;
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save file';
       dispatch({ type: 'SET_FILE_ERROR', payload: errorMessage });
@@ -339,7 +385,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const fileState: FileState = {
         file: newFile,
         originalContent: '', // New file starts empty
-        hasUnsavedChanges: false, // New empty file has no changes yet
+        hasUnsavedChanges: true, // New file needs to be saved
         lastSaveTime: null,
         lastModifiedTime: new Date(),
         isLoading: false,

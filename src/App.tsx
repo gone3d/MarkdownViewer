@@ -21,7 +21,7 @@ function App() {
     toggleTheme,
   } = useAppContext();
 
-  const { actualTheme } = useTheme();
+  // Remove the separate theme hook since we're using AppContext
   const fileTree = useFileTree();
 
   // Pre-compute header IDs for synchronization between TOC and Viewer
@@ -91,7 +91,7 @@ function App() {
         onToggleSidebar={toggleSidebar}
         viewMode={state.viewMode}
         onViewModeChange={setViewMode}
-        isDarkMode={actualTheme === 'dark'}
+        isDarkMode={state.theme === 'dark'}
         onThemeToggle={toggleTheme}
       />
       <AppShell
