@@ -151,7 +151,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
         {!isLoading && !error && treeState.nodes.length === 0 && (
           <div className="flex items-center justify-center h-32 p-4">
             <div className="text-center text-gray-500 dark:text-gray-400">
-              <Folder className="h-12 w-12 mx-auto mb-3" />
+              <Folder className="h-12 w-12 mx-auto mb-3 mt-16" />
               <p className="text-sm font-medium mb-2">No folder selected</p>
               <p className="text-xs mb-4">
                 Choose a folder to browse markdown files
