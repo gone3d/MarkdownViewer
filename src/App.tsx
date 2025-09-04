@@ -42,9 +42,6 @@ function App() {
     lastSaveTime: state.currentFile?.lastSaveTime || null,
   });
 
-  const handleOpenFile = async () => {
-    await openFile();
-  };
 
   const handleFileSelect = async (filePath: string) => {
     // For now, just log the selection
@@ -81,11 +78,6 @@ function App() {
     }
   };
 
-  const handleHeaderSave = async () => {
-    if (state.currentFile) {
-      await handleSave(state.currentFile.file.content);
-    }
-  };
 
   // Convert context state to legacy format for components that haven't been updated yet
   const currentFile = state.currentFile ? state.currentFile.file : null;
@@ -97,9 +89,6 @@ function App() {
       <Header
         sidebarOpen={state.sidebarOpen}
         onToggleSidebar={toggleSidebar}
-        onOpenFile={handleOpenFile}
-        onSave={handleHeaderSave}
-        hasFile={!!state.currentFile}
         viewMode={state.viewMode}
         onViewModeChange={setViewMode}
         isDarkMode={actualTheme === 'dark'}
