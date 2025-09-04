@@ -55,26 +55,32 @@ const Sidebar: React.FC<SidebarProps> = ({
       </header>
 
       {/* Sidebar Content */}
-      <div className={`flex-1 overflow-auto ${mode === 'toc' || mode === 'files' ? '' : 'p-4'}`}>
+      <div
+        className={`flex-1 overflow-auto ${mode === 'toc' || mode === 'files' ? '' : 'p-4'}`}
+      >
         {mode === 'files' && (
-          <FileBrowser 
-            onFileSelect={(node) => {
+          <FileBrowser
+            onFileSelect={node => {
               if (node.type === 'file' && node.isMarkdown && onFileSelect) {
                 onFileSelect(node.path);
               }
             }}
-            onFileOpen={(node) => {
+            onFileOpen={node => {
               if (node.type === 'file' && node.isMarkdown && onFileOpen) {
                 onFileOpen(node.path);
               }
             }}
             fileTree={fileTree}
-            className="h-full" 
+            className="h-full"
           />
         )}
 
         {mode === 'toc' && (
-          <TableOfContents currentFile={currentFile} headerIds={headerIds} className="h-full" />
+          <TableOfContents
+            currentFile={currentFile}
+            headerIds={headerIds}
+            className="h-full"
+          />
         )}
 
         {mode === 'search' && (

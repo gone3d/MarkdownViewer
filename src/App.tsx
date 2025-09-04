@@ -12,13 +12,23 @@ import './index.css';
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('viewer');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { currentFile, isLoading, error, openFile, loadFile, saveFile, updateContent } = useMarkdownFile();
+  const {
+    currentFile,
+    isLoading,
+    error,
+    openFile,
+    loadFile,
+    saveFile,
+    updateContent,
+  } = useMarkdownFile();
   const { actualTheme, toggleTheme } = useTheme();
   const fileTree = useFileTree();
 
   // Pre-compute header IDs for synchronization between TOC and Viewer
   const headerIds = useMemo(() => {
-    return currentFile?.content ? precomputeHeaderIds(currentFile.content) : new Map();
+    return currentFile?.content
+      ? precomputeHeaderIds(currentFile.content)
+      : new Map();
   }, [currentFile?.content]);
 
   const handleOpenFile = async () => {
@@ -38,7 +48,7 @@ function App() {
     try {
       // Get the file from the file tree using its ID (path)
       const file = await fileTree.loadFileById(filePath);
-      
+
       if (file) {
         // Load the file using the markdown file hook
         await loadFile(file);

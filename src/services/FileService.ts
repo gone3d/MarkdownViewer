@@ -1,14 +1,21 @@
 import { MarkdownFile, MarkdownFolder } from '../types/markdown';
 
 export class FileValidationError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string
+  ) {
     super(message);
     this.name = 'FileValidationError';
   }
 }
 
 export class FileOperationError extends Error {
-  constructor(message: string, public code: string, public originalError?: Error) {
+  constructor(
+    message: string,
+    public code: string,
+    public originalError?: Error
+  ) {
     super(message);
     this.name = 'FileOperationError';
   }
@@ -55,10 +62,7 @@ class FileService {
 
     // Check if file is empty
     if (file.size === 0) {
-      throw new FileValidationError(
-        'File is empty',
-        'EMPTY_FILE'
-      );
+      throw new FileValidationError('File is empty', 'EMPTY_FILE');
     }
   }
 
@@ -69,7 +73,7 @@ class FileService {
 
   private extractMetadata(content: string): Record<string, any> {
     const metadata: Record<string, any> = {};
-    
+
     // Word count
     const wordCount = content
       .replace(/```[\s\S]*?```/g, '') // Remove code blocks
@@ -78,32 +82,32 @@ class FileService {
       .replace(/[^\w\s]/g, ' ') // Replace non-word characters
       .split(/\s+/)
       .filter(word => word.length > 0).length;
-    
+
     metadata.wordCount = wordCount;
     metadata.estimatedReadTime = Math.ceil(wordCount / 200); // 200 words per minute
-    
+
     // Header count
     const headers = content.match(/^#{1,6}\s.+$/gm) || [];
     metadata.headerCount = headers.length;
-    
+
     // Line count
     metadata.lineCount = content.split('\n').length;
-    
+
     // Character count
     metadata.charCount = content.length;
-    
+
     // Check for frontmatter
     const hasFrontmatter = content.startsWith('---\n');
     metadata.hasFrontmatter = hasFrontmatter;
-    
+
     // Extract images
     const images = content.match(/!\[.*?\]\([^)]+\)/g) || [];
     metadata.imageCount = images.length;
-    
+
     // Extract links
     const links = content.match(/(?<!!)\[([^\]]+)\]\([^)]+\)/g) || [];
     metadata.linkCount = links.length;
-    
+
     return metadata;
   }
 
@@ -128,7 +132,7 @@ class FileService {
       });
 
       const file = await fileHandle.getFile();
-      
+
       // Validate file before processing
       try {
         this.validateFile(file);
@@ -158,11 +162,14 @@ class FileService {
       if ((error as Error).name === 'AbortError') {
         return null; // User cancelled
       }
-      
-      if (error instanceof FileOperationError || error instanceof FileValidationError) {
+
+      if (
+        error instanceof FileOperationError ||
+        error instanceof FileValidationError
+      ) {
         throw error; // Re-throw our custom errors
       }
-      
+
       throw new FileOperationError(
         'Failed to open file',
         'FILE_READ_ERROR',
@@ -176,8 +183,8 @@ class FileService {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.md,.markdown,.txt,.text';
-      
-      input.onchange = async (event) => {
+
+      input.onchange = async event => {
         try {
           const file = (event.target as HTMLInputElement).files?.[0];
           if (!file) {
@@ -205,11 +212,13 @@ class FileService {
           if (error instanceof FileValidationError) {
             reject(error);
           } else {
-            reject(new FileOperationError(
-              'Failed to process selected file',
-              'FALLBACK_ERROR',
-              error as Error
-            ));
+            reject(
+              new FileOperationError(
+                'Failed to process selected file',
+                'FALLBACK_ERROR',
+                error as Error
+              )
+            );
           }
         }
       };
@@ -235,16 +244,21 @@ class FileService {
     }
   }
 
-  private async readDirectory(directoryHandle: any, parentPath = ''): Promise<MarkdownFolder> {
+  private async readDirectory(
+    directoryHandle: any,
+    parentPath = ''
+  ): Promise<MarkdownFolder> {
     const files: MarkdownFile[] = [];
     const subfolders: MarkdownFolder[] = [];
-    const currentPath = parentPath ? `${parentPath}/${directoryHandle.name}` : directoryHandle.name;
+    const currentPath = parentPath
+      ? `${parentPath}/${directoryHandle.name}`
+      : directoryHandle.name;
 
     for await (const [name, handle] of directoryHandle.entries()) {
       if (handle.kind === 'file' && this.isMarkdownFile(name)) {
         const file = await handle.getFile();
         const content = await file.text();
-        
+
         files.push({
           id: crypto.randomUUID(),
           name: file.name,
@@ -281,7 +295,7 @@ class FileService {
   public async processFile(file: File, content: string): Promise<MarkdownFile> {
     // Validate file
     this.validateFile(file);
-    
+
     // Extract metadata
     const metadata = this.extractMetadata(content);
 
@@ -306,15 +320,17 @@ class FileService {
         await writable.close();
         return true;
       }
-      
+
       // Fallback: trigger download for browsers without File System Access API support
       // or for files that don't have a fileHandle
       return this.downloadFile(file.name, content);
     } catch (error) {
       console.error('Error saving file:', error);
-      
+
       // If File System Access API fails, fall back to download
-      console.warn('File System Access API save failed, falling back to download');
+      console.warn(
+        'File System Access API save failed, falling back to download'
+      );
       return this.downloadFile(file.name, content);
     }
   }

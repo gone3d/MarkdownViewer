@@ -21,7 +21,7 @@ class MarkdownService {
         const level = headerMatch[1].length;
         const text = headerMatch[2].trim();
         const anchor = this.generateAnchor(text);
-        
+
         const item: TableOfContentsItem = {
           id: `toc-${index}-${anchor}`,
           text,
@@ -74,7 +74,7 @@ class MarkdownService {
   } {
     const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
     const frontmatterMatch = content.match(frontmatterRegex);
-    
+
     if (!frontmatterMatch) {
       return { frontmatter: null, content };
     }
@@ -83,16 +83,18 @@ class MarkdownService {
       // Simple YAML-like parsing (basic implementation)
       const frontmatterText = frontmatterMatch[1];
       const frontmatter: Record<string, any> = {};
-      
+
       frontmatterText.split('\n').forEach(line => {
         const colonIndex = line.indexOf(':');
         if (colonIndex > 0) {
           const key = line.substring(0, colonIndex).trim();
           const value = line.substring(colonIndex + 1).trim();
-          
+
           // Remove quotes if present
-          if ((value.startsWith('"') && value.endsWith('"')) ||
-              (value.startsWith("'") && value.endsWith("'"))) {
+          if (
+            (value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))
+          ) {
             frontmatter[key] = value.slice(1, -1);
           } else if (value === 'true' || value === 'false') {
             frontmatter[key] = value === 'true';

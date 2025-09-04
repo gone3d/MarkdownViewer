@@ -44,7 +44,6 @@
 /* Content indentation will be handled by JavaScript */
 
 .markdown-content {
-  
   /* Anchor links for headers */
   h1:hover .anchor-link,
   h2:hover .anchor-link,
@@ -54,17 +53,17 @@
   h6:hover .anchor-link {
     @apply opacity-100;
   }
-  
+
   .anchor-link {
     @apply text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300;
     @apply no-underline opacity-0;
     @apply transition-opacity duration-200;
     @apply ml-2 text-sm;
   }
-  
+
   /* Paragraphs - reduce line height and bottom margin */
   @apply prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-p:leading-normal prose-p:mb-2;
-  
+
   /* Lists - reduce spacing between items */
   @apply prose-ul:my-2 prose-ol:my-2;
   @apply prose-li:my-0 prose-li:leading-normal prose-li:mb-1;
@@ -117,13 +116,13 @@
   /* Links */
   @apply prose-a:text-primary-600 hover:prose-a:text-primary-700 dark:prose-a:text-primary-400 dark:hover:prose-a:text-primary-300;
   @apply prose-a:font-medium prose-a:no-underline hover:prose-a:underline;
-  
+
   /* Strong text */
   @apply prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold;
-  
+
   /* Emphasis */
   @apply prose-em:text-gray-800 dark:prose-em:text-gray-200 prose-em:italic;
-  
+
   /* Lists */
   @apply prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-li:mb-1;
   @apply prose-ul:my-4 prose-ol:my-4;
@@ -137,7 +136,7 @@
   @apply prose-code:bg-gray-100 dark:prose-code:bg-gray-800;
   @apply prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono;
   @apply prose-code:before:content-none prose-code:after:content-none;
-  
+
   /* Code blocks */
   @apply prose-pre:bg-gray-900 dark:prose-pre:bg-gray-800;
   @apply prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:p-4;
@@ -190,7 +189,7 @@
 }
 
 /* Task lists (checkboxes) */
-.markdown-content input[type="checkbox"] {
+.markdown-content input[type='checkbox'] {
   @apply mr-2;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -205,24 +204,24 @@
 }
 
 /* Dark mode unchecked checkbox */
-.dark .markdown-content input[type="checkbox"] {
+.dark .markdown-content input[type='checkbox'] {
   border-color: #9ca3af; /* gray-400 */
 }
 
 /* Checked checkboxes - green with checkmark */
-.markdown-content input[type="checkbox"]:checked {
+.markdown-content input[type='checkbox']:checked {
   background-color: #16a34a; /* green-600 */
   border-color: #16a34a; /* green-600 */
 }
 
 /* Dark mode checked checkbox */
-.dark .markdown-content input[type="checkbox"]:checked {
+.dark .markdown-content input[type='checkbox']:checked {
   background-color: #22c55e; /* green-500 */
   border-color: #22c55e; /* green-500 */
 }
 
 /* Checkmark symbol */
-.markdown-content input[type="checkbox"]:checked::after {
+.markdown-content input[type='checkbox']:checked::after {
   content: '✓';
   position: absolute;
   top: -2px;
@@ -272,19 +271,19 @@
 
 :root {
   /* Light theme colors - VS Code inspired */
-  --md-header-color: #A31515;
-  --md-header-marker-color: #A31515;
-  --md-bold-color: #0000FF;
+  --md-header-color: #a31515;
+  --md-header-marker-color: #a31515;
+  --md-bold-color: #0000ff;
   --md-bold-marker-color: #808080;
   --md-italic-color: #008000;
   --md-italic-marker-color: #808080;
-  --md-code-color: #A31515;
+  --md-code-color: #a31515;
   --md-code-marker-color: #808080;
   --md-code-bg-color: #f6f8fa;
-  --md-link-color: #0000FF;
-  --md-link-text-color: #0000FF;
+  --md-link-color: #0000ff;
+  --md-link-text-color: #0000ff;
   --md-link-url-color: #808080;
-  --md-image-color: #0000FF;
+  --md-image-color: #0000ff;
   --md-list-marker-color: #808080;
   --md-list-item-color: #000000;
   --md-blockquote-color: #808080;
@@ -298,28 +297,28 @@
 
 .dark {
   /* Dark theme colors - VS Code inspired */
-  --md-header-color: #569CD6;
-  --md-header-marker-color: #569CD6;
-  --md-bold-color: #D7BA7D;
+  --md-header-color: #569cd6;
+  --md-header-marker-color: #569cd6;
+  --md-bold-color: #d7ba7d;
   --md-bold-marker-color: #808080;
-  --md-italic-color: #4EC9B0;
+  --md-italic-color: #4ec9b0;
   --md-italic-marker-color: #808080;
-  --md-code-color: #CE9178;
+  --md-code-color: #ce9178;
   --md-code-marker-color: #808080;
   --md-code-bg-color: #161b22;
-  --md-link-color: #569CD6;
-  --md-link-text-color: #569CD6;
+  --md-link-color: #569cd6;
+  --md-link-text-color: #569cd6;
   --md-link-url-color: #808080;
-  --md-image-color: #569CD6;
+  --md-image-color: #569cd6;
   --md-list-marker-color: #808080;
-  --md-list-item-color: #D4D4D4;
-  --md-blockquote-color: #608B4E;
+  --md-list-item-color: #d4d4d4;
+  --md-blockquote-color: #608b4e;
   --md-blockquote-marker-color: #808080;
   --md-strikethrough-color: #808080;
   --md-strikethrough-marker-color: #808080;
   --md-hr-color: #808080;
-  --md-table-color: #D4D4D4;
-  --md-text-color: #D4D4D4;
+  --md-table-color: #d4d4d4;
+  --md-text-color: #d4d4d4;
 }
 
 /* Syntax highlighting classes */
@@ -529,11 +528,11 @@
   .markdown-content {
     @apply text-black;
   }
-  
+
   .markdown-content pre {
     @apply bg-gray-100 text-black border border-gray-300;
   }
-  
+
   .markdown-content code {
     @apply bg-gray-100 text-black;
   }

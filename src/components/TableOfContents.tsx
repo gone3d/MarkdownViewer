@@ -9,10 +9,10 @@ interface TableOfContentsProps {
   className?: string;
 }
 
-const TableOfContents: React.FC<TableOfContentsProps> = ({ 
-  currentFile, 
+const TableOfContents: React.FC<TableOfContentsProps> = ({
+  currentFile,
   headerIds,
-  className = '' 
+  className = '',
 }) => {
   const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
 
@@ -27,7 +27,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
   // Handle item collapse/expand
   const toggleCollapse = (id: string, hasChildren: boolean) => {
     if (!hasChildren) return;
-    
+
     setCollapsedItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -43,10 +43,10 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
   const handleItemClick = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth', 
+      element.scrollIntoView({
+        behavior: 'smooth',
         block: 'start',
-        inline: 'nearest'
+        inline: 'nearest',
       });
     }
   };
@@ -54,7 +54,9 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
   // No file loaded
   if (!currentFile) {
     return (
-      <div className={`flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400 ${className}`}>
+      <div
+        className={`flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400 ${className}`}
+      >
         <FileText className="h-8 w-8 mb-2" />
         <p className="text-sm text-center">No file selected</p>
       </div>
@@ -64,7 +66,9 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
   // No headers found
   if (tocItems.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400 ${className}`}>
+      <div
+        className={`flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400 ${className}`}
+      >
         <Hash className="h-8 w-8 mb-2" />
         <p className="text-sm text-center">No headers found</p>
       </div>
@@ -86,12 +90,15 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
         {flatTocItems.map((item, index) => {
           const hasChildren = item.children.length > 0;
           const isCollapsed = collapsedItems.has(item.id);
-          
+
           // Check if this item should be hidden due to a collapsed parent
           let shouldHide = false;
           for (let i = index - 1; i >= 0; i--) {
             const previousItem = flatTocItems[i];
-            if (previousItem.depth < item.depth && collapsedItems.has(previousItem.id)) {
+            if (
+              previousItem.depth < item.depth &&
+              collapsedItems.has(previousItem.id)
+            ) {
               shouldHide = true;
               break;
             }
@@ -104,7 +111,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
             <div key={item.id} className="group">
               <div
                 className={`flex items-center gap-1 py-0.5 px-2 rounded-md cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                  item.depth > 0 ? 'ml-' + (item.depth * 4) : ''
+                  item.depth > 0 ? 'ml-' + item.depth * 4 : ''
                 }`}
                 style={{ marginLeft: `${item.depth * 16}px` }}
                 onClick={() => handleItemClick(item.id)}
@@ -112,7 +119,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
                 {hasChildren && (
                   <button
                     className="flex-shrink-0 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       toggleCollapse(item.id, hasChildren);
                     }}
@@ -124,18 +131,16 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
                     )}
                   </button>
                 )}
-                
-                {!hasChildren && (
-                  <div className="w-4 flex-shrink-0" />
-                )}
 
-                <div 
+                {!hasChildren && <div className="w-4 flex-shrink-0" />}
+
+                <div
                   className={`flex-1 text-xs leading-tight truncate transition-colors ${
-                    item.level === 1 
+                    item.level === 1
                       ? 'font-semibold text-gray-900 dark:text-gray-100'
                       : item.level === 2
-                      ? 'font-medium text-gray-800 dark:text-gray-200'
-                      : 'text-gray-700 dark:text-gray-300'
+                        ? 'font-medium text-gray-800 dark:text-gray-200'
+                        : 'text-gray-700 dark:text-gray-300'
                   } group-hover:text-primary-600 dark:group-hover:text-primary-400`}
                   title={item.text}
                 >

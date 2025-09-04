@@ -21,27 +21,36 @@ export const useTheme = (): UseThemeReturn => {
   }, []);
 
   // Calculate actual theme based on theme setting
-  const calculateActualTheme = useCallback((themeValue: Theme): 'light' | 'dark' => {
-    if (themeValue === 'auto') {
-      return getSystemTheme();
-    }
-    return themeValue;
-  }, [getSystemTheme]);
+  const calculateActualTheme = useCallback(
+    (themeValue: Theme): 'light' | 'dark' => {
+      if (themeValue === 'auto') {
+        return getSystemTheme();
+      }
+      return themeValue;
+    },
+    [getSystemTheme]
+  );
 
   // Apply theme to document
   const applyTheme = useCallback((actualThemeValue: 'light' | 'dark') => {
-    document.documentElement.classList.toggle('dark', actualThemeValue === 'dark');
+    document.documentElement.classList.toggle(
+      'dark',
+      actualThemeValue === 'dark'
+    );
   }, []);
 
   // Set theme and persist
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem('markdownviewer-theme', newTheme);
-    
-    const newActualTheme = calculateActualTheme(newTheme);
-    setActualTheme(newActualTheme);
-    applyTheme(newActualTheme);
-  }, [calculateActualTheme, applyTheme]);
+  const setTheme = useCallback(
+    (newTheme: Theme) => {
+      setThemeState(newTheme);
+      localStorage.setItem('markdownviewer-theme', newTheme);
+
+      const newActualTheme = calculateActualTheme(newTheme);
+      setActualTheme(newActualTheme);
+      applyTheme(newActualTheme);
+    },
+    [calculateActualTheme, applyTheme]
+  );
 
   // Toggle between light and dark (not auto)
   const toggleTheme = useCallback(() => {
@@ -53,9 +62,9 @@ export const useTheme = (): UseThemeReturn => {
   useEffect(() => {
     const savedTheme = localStorage.getItem('markdownviewer-theme') as Theme;
     const initialTheme = savedTheme || 'auto';
-    
+
     const initialActualTheme = calculateActualTheme(initialTheme);
-    
+
     setThemeState(initialTheme);
     setActualTheme(initialActualTheme);
     applyTheme(initialActualTheme);
@@ -66,7 +75,7 @@ export const useTheme = (): UseThemeReturn => {
     if (theme !== 'auto') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = () => {
       const newActualTheme = getSystemTheme();
       setActualTheme(newActualTheme);

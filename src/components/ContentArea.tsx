@@ -43,18 +43,20 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
         const shouldBeHorizontal = width > height;
-        console.log(`ContentArea dimensions: ${width}x${height}, horizontal: ${shouldBeHorizontal}`);
+        console.log(
+          `ContentArea dimensions: ${width}x${height}, horizontal: ${shouldBeHorizontal}`
+        );
         setIsHorizontalSplit(shouldBeHorizontal);
       }
     };
 
     // Add a small delay to ensure container is properly sized
     const timeoutId = setTimeout(updateSplitOrientation, 100);
-    
+
     const resizeObserver = new ResizeObserver(() => {
       setTimeout(updateSplitOrientation, 50);
     });
-    
+
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
@@ -108,8 +110,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           <FileText className="h-16 w-16 mx-auto mb-6" />
           <h2 className="text-2xl font-bold mb-4">Welcome to MarkdownViewer</h2>
           <p className="mb-6 leading-relaxed">
-            Select a markdown file from the sidebar or open a file to start viewing and editing
-            your markdown content with live preview and table of contents.
+            Select a markdown file from the sidebar or open a file to start
+            viewing and editing your markdown content with live preview and
+            table of contents.
           </p>
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-left">
             <h3 className="font-semibold mb-2">Supported formats:</h3>
@@ -129,52 +132,62 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     case 'viewer':
       return (
         <div className={`h-full ${className}`}>
-          <MarkdownViewer file={currentFile} headerIds={headerIds} className="h-full" />
+          <MarkdownViewer
+            file={currentFile}
+            headerIds={headerIds}
+            className="h-full"
+          />
         </div>
       );
 
     case 'editor':
       return (
         <div className={`h-full ${className}`}>
-          <MarkdownEditor 
-            file={currentFile} 
+          <MarkdownEditor
+            file={currentFile}
             onChange={handleContentChange}
             onSave={handleSave}
-            className="h-full" 
+            className="h-full"
           />
         </div>
       );
 
     case 'split':
       return (
-        <div 
+        <div
           ref={containerRef}
           className={`flex ${isHorizontalSplit ? 'flex-row' : 'flex-col'} h-full overflow-hidden ${className}`}
         >
-          <div className={`${
-            isHorizontalSplit 
-              ? 'w-1/2 border-r border-gray-200 dark:border-gray-700' 
-              : 'h-1/2 border-b border-gray-200 dark:border-gray-700 overflow-hidden'
-          }`}>
-            <MarkdownEditor 
-              file={currentFile} 
+          <div
+            className={`${
+              isHorizontalSplit
+                ? 'w-1/2 border-r border-gray-200 dark:border-gray-700'
+                : 'h-1/2 border-b border-gray-200 dark:border-gray-700 overflow-hidden'
+            }`}
+          >
+            <MarkdownEditor
+              file={currentFile}
               onChange={handleContentChange}
               onSave={handleSave}
-              className="h-full w-full" 
+              className="h-full w-full"
             />
           </div>
-          <div className={`${
-            isHorizontalSplit 
-              ? 'w-1/2' 
-              : 'h-1/2 overflow-hidden'
-          }`}>
-            <MarkdownViewer 
-              file={currentFile ? {
-                ...currentFile,
-                content: editorContent || currentFile.content
-              } : null} 
+          <div
+            className={`${
+              isHorizontalSplit ? 'w-1/2' : 'h-1/2 overflow-hidden'
+            }`}
+          >
+            <MarkdownViewer
+              file={
+                currentFile
+                  ? {
+                      ...currentFile,
+                      content: editorContent || currentFile.content,
+                    }
+                  : null
+              }
               headerIds={headerIds}
-              className="h-full w-full" 
+              className="h-full w-full"
             />
           </div>
         </div>
@@ -183,7 +196,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     default:
       return (
         <div className={`h-full ${className}`}>
-          <MarkdownViewer file={currentFile} headerIds={headerIds} className="h-full" />
+          <MarkdownViewer
+            file={currentFile}
+            headerIds={headerIds}
+            className="h-full"
+          />
         </div>
       );
   }
