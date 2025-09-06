@@ -139,3 +139,4 @@ dist
 *.md
 !README.md
 !INSTALL.md
+!TASKS.md

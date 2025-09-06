@@ -4,7 +4,7 @@ import FileService, {
   FileValidationError,
   FileOperationError,
 } from '../services/FileService';
-import { addRecentFile, recentFileToMarkdownFile, type RecentFile } from '../utils/recentFiles';
+import { addRecentFile, recentFileToMarkdownFile, getFileHandleFromCache, type RecentFile } from '../utils/recentFiles';
 
 // Extended file state with additional metadata
 export interface FileState {
@@ -343,7 +343,30 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_GLOBAL_ERROR', payload: null });
 
     try {
-      // Convert the RecentFile to a MarkdownFile
+      // INTELLIGENT REFRESH: Check if file was modified externally
+      const fileHandleCache = getFileHandleFromCache(recentFile.id);
+      const fileHandle = recentFile.fileHandle || fileHandleCache;
+      
+      if (fileHandle) {
+        try {
+          // Get current file info from disk
+          const currentFile = await fileHandle.getFile();
+          const currentModTime = currentFile.lastModified;
+          const cachedModTime = recentFile.lastModified;
+          
+          // If file was modified externally, reload fresh content
+          if (currentModTime > cachedModTime) {
+            console.log(`🔄 File "${recentFile.name}" modified externally, loading fresh content...`);
+            await openFileFromHandle(fileHandle);
+            return; // Exit early - openFileFromHandle handles everything
+          }
+        } catch (error) {
+          console.warn(`⚠️ FileHandle for "${recentFile.name}" no longer accessible, using cached content:`, error);
+          // Continue with cached content if fileHandle is invalid
+        }
+      }
+      
+      // File unchanged or no fileHandle - use fast cached content
       const markdownFile = recentFileToMarkdownFile(recentFile);
       
       const fileState: FileState = {

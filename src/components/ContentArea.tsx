@@ -88,18 +88,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
   // Smart cursor-based synchronization for split view
   const handleCursorPositionChange = useCallback((cursorPosition: number) => {
-    console.log('🎯 Cursor position changed:', cursorPosition);
-    console.log('📊 Current state:', { 
-      isScrollingSync: isScrollingSyncRef.current, 
-      viewMode, 
-      hasViewer: !!viewerRef.current, 
-      hasContent: !!currentFile?.content,
-      headerIdsSize: headerIds?.size,
-      headerIdsKeys: headerIds ? Array.from(headerIds.keys()).slice(0, 5) : []
-    });
-    
     if (isScrollingSyncRef.current || viewMode !== 'split' || !viewerRef.current || !currentFile?.content) {
-      console.log('❌ Early return - conditions not met');
       return;
     }
     
@@ -119,8 +108,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       charactersCount += lineLength;
     }
     
-    console.log('📍 Cursor at line:', currentLine, 'Line content:', lines[currentLine]);
-    
     // Find the nearest header above the cursor
     let nearestHeaderText = '';
     for (let i = currentLine; i >= 0; i--) {
@@ -128,23 +115,17 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       const headerMatch = line.match(/^#{1,6}\s+(.+)$/);
       if (headerMatch) {
         nearestHeaderText = headerMatch[1].trim();
-        console.log('🔍 Found header text:', nearestHeaderText);
         break;
       }
     }
     
-    console.log('🗂️ Available headerIds keys:', Array.from(headerIds?.keys() || []));
-    console.log('🎯 Looking for header text:', nearestHeaderText, 'Found?', headerIds?.has(nearestHeaderText));
-    
     // Scroll viewer to the corresponding header if found
     if (nearestHeaderText && headerIds?.has(nearestHeaderText)) {
-      console.log('✅ Scrolling to section:', nearestHeaderText);
       isScrollingSyncRef.current = true;
       
       try {
         const elementId = headerIds.get(nearestHeaderText)!;
         const element = document.getElementById(elementId);
-        console.log('🎯 Target element:', elementId, 'Found?', !!element);
         if (element) {
           element.scrollIntoView({ 
             behavior: 'smooth', 
@@ -158,8 +139,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           isScrollingSyncRef.current = false;
         }, 500); // Longer delay for smooth scroll completion
       }
-    } else {
-      console.log('❌ No matching header found for sync - headerText:', nearestHeaderText);
     }
   }, [viewMode, currentFile?.content, headerIds]);
 

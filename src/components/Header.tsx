@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import packageJson from '../../package.json';
 import { ViewMode } from '../types/markdown';
-import { FolderOpen, Menu, X, FileText, Sun, Moon, Save, Info, File, Copy, Edit3, Trash2 } from 'lucide-react';
+import { FolderOpen, Menu, X, FileText, Sun, Moon, Save, Info, File, Copy, Edit3, Trash2, Settings } from 'lucide-react';
 import FileInfoModal from './FileInfoModal';
+import SettingsModal from './SettingsModal';
 import DropDown, { DropDownItem } from './DropDown';
 import { useAppContext } from '../contexts/AppContext';
 
@@ -26,6 +27,7 @@ const Header: React.FC<HeaderProps> = ({
   onThemeToggle,
 }) => {
   const [isFileInfoOpen, setIsFileInfoOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { state, openFile, saveFile, createFile, renameFile, duplicateFile, deleteFile } = useAppContext();
   const hasUnsavedChanges = state.currentFile?.hasUnsavedChanges ?? false;
 
@@ -184,11 +186,20 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Right side - Theme Toggle */}
+      {/* Right side - Settings & Theme Toggle */}
       <div className="flex items-center gap-4">
-        {/* Theme Toggle */}
+        {/* Settings Button */}
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+          title="Settings"
+        >
+          <Settings className="h-5 w-5" />
+        </button>
+
+        {/* Theme Toggle with fixed width to prevent jumping */}
         <div className="theme-toggle">
-          <span className="toggle-text">{isDarkMode ? 'Dark' : 'Light'}</span>
+          <span className="toggle-text inline-block w-10 text-right">{isDarkMode ? 'Dark' : 'Light'}</span>
           <input
             type="checkbox"
             id="theme-toggle"
@@ -208,6 +219,12 @@ const Header: React.FC<HeaderProps> = ({
       <FileInfoModal
         isOpen={isFileInfoOpen}
         onClose={() => setIsFileInfoOpen(false)}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </header>
   );
