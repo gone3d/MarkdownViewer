@@ -19,6 +19,13 @@ const MAX_RECENT_FILES = 10;
 const fileHandleCache = new Map<string, FileSystemFileHandle>();
 
 /**
+ * Get fileHandle from memory cache
+ */
+export function getFileHandleFromCache(id: string): FileSystemFileHandle | undefined {
+  return fileHandleCache.get(id);
+}
+
+/**
  * Get recent files from localStorage
  */
 export function getRecentFiles(): RecentFile[] {

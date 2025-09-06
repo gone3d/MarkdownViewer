@@ -75,14 +75,8 @@ const SyntaxHighlightedEditor = forwardRef<
 
     // Handle cursor position changes (for smart viewer sync)
     const handleCursorChange = (_e: React.SyntheticEvent<HTMLTextAreaElement>) => {
-      console.log('🔧 SyntaxHighlightedEditor handleCursorChange called', {
-        hasCallback: !!onCursorPositionChange,
-        hasTextarea: !!textareaRef.current,
-        selectionStart: textareaRef.current?.selectionStart
-      });
       if (onCursorPositionChange && textareaRef.current) {
         const cursorPosition = textareaRef.current.selectionStart;
-        console.log('🔧 Calling onCursorPositionChange with position:', cursorPosition);
         onCursorPositionChange(cursorPosition);
       }
     };
