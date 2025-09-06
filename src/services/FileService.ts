@@ -111,6 +111,38 @@ class FileService {
     return metadata;
   }
 
+  public async openFileFromHandle(fileHandle: FileSystemFileHandle): Promise<MarkdownFile> {
+    // Get the File object from the fileHandle
+    const file = await fileHandle.getFile();
+    
+    // Validate the file
+    try {
+      this.validateFile(file);
+    } catch (error) {
+      throw new FileOperationError(
+        `File validation failed: ${(error as Error).message}`,
+        'VALIDATION_ERROR',
+        error as Error
+      );
+    }
+
+    // Read content and create MarkdownFile
+    const content = await file.text();
+    const metadata = this.extractMetadata(content);
+
+    return {
+      id: crypto.randomUUID(),
+      name: file.name,
+      path: fileHandle.name,
+      content,
+      size: file.size,
+      lastModified: new Date(file.lastModified),
+      created: new Date(file.lastModified),
+      metadata,
+      fileHandle, // Store the fileHandle for later saving
+    };
+  }
+
   public async openFile(): Promise<MarkdownFile | null> {
     if (!this.fileSystemSupported) {
       return this.openFileFallback();
@@ -354,7 +386,10 @@ class FileService {
 
   private async saveAsFile(suggestedName: string, content: string): Promise<{ success: boolean; fileHandle?: FileSystemFileHandle }> {
     try {
-      const fileHandle = await window.showSaveFilePicker({
+      if (!('showSaveFilePicker' in window)) {
+        throw new Error('File System Access API not supported');
+      }
+      const fileHandle = await (window as any).showSaveFilePicker({
         types: [
           {
             description: 'Markdown files',

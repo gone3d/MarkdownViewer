@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { MarkdownFile } from '../types/markdown';
 import EditorToolbar from './EditorToolbar';
 import SyntaxHighlightedEditor, {
@@ -9,19 +9,35 @@ interface MarkdownEditorProps {
   file: MarkdownFile | null;
   onChange?: (content: string) => void;
   onSave?: (content: string) => void;
+  onScroll?: (scrollTop: number, scrollHeight: number, clientHeight: number) => void;
+  onCursorPositionChange?: (position: number) => void;
   className?: string;
   readOnly?: boolean;
 }
 
-const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
+export interface MarkdownEditorRef {
+  getScrollElement: () => HTMLElement | null;
+}
+
+const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({
   file,
   onChange,
   onSave,
+  onScroll,
+  onCursorPositionChange,
   className = '',
   readOnly = false,
-}) => {
+}, ref) => {
   const [content, setContent] = useState(file?.content || '');
   const editorRef = useRef<SyntaxHighlightedEditorRef>(null);
+
+  // Expose scroll element for synchronization
+  useImperativeHandle(ref, () => ({
+    getScrollElement: () => {
+      const textarea = editorRef.current?.getTextarea();
+      return textarea || null;
+    }
+  }));
 
   // Update content when file changes
   useEffect(() => {
@@ -35,6 +51,14 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     setContent(newContent);
     if (onChange && !readOnly) {
       onChange(newContent);
+    }
+  };
+
+  // Handle scroll events from the editor
+  const handleEditorScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+    if (onScroll) {
+      const target = e.currentTarget;
+      onScroll(target.scrollTop, target.scrollHeight, target.clientHeight);
     }
   };
 
@@ -215,6 +239,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
           value={content}
           onChange={handleContentChange}
           onKeyDown={handleKeyDown}
+          onScroll={handleEditorScroll}
+          onCursorPositionChange={onCursorPositionChange}
           readOnly={readOnly}
           placeholder="Start typing your markdown content..."
           className="flex-1 w-full"
@@ -235,6 +261,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       )}
     </div>
   );
-};
+});
+
+MarkdownEditor.displayName = 'MarkdownEditor';
 
 export default MarkdownEditor;

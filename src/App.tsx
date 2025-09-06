@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { useAppContext } from './contexts/AppContext';
 import { useAutoSave } from './hooks/useAutoSave';
-import { useTheme } from './hooks/useTheme';
 import { useFileTree } from './hooks/useFileTree';
 import { precomputeHeaderIds } from './utils/slugify';
 import Header from './components/Header';
@@ -12,13 +11,13 @@ import './index.css';
 function App() {
   const {
     state,
-    openFile,
     loadFile,
     saveFile,
     updateFileContent,
     setViewMode,
     toggleSidebar,
     toggleTheme,
+    openFile,
   } = useAppContext();
 
   // Remove the separate theme hook since we're using AppContext
@@ -50,15 +49,33 @@ function App() {
 
   const handleFileOpen = async (filePath: string) => {
     try {
-      // Get the file from the file tree using its ID (path)
+      // First try to get the file from the current file tree
       const file = await fileTree.loadFileById(filePath);
 
       if (file) {
-        // Load the file using the context
+        // File found in current tree - load it directly
         await loadFile(file);
-        console.log('Successfully loaded file:', filePath);
+        console.log('Successfully loaded file from current tree:', filePath);
       } else {
-        console.error('Failed to load file:', filePath);
+        // File not found in current tree - try to access it directly if supported
+        console.log('File not in current tree, attempting direct access:', filePath);
+        
+        if ('showOpenFilePicker' in window) {
+          try {
+            // For recent files, we can try to guide the user to the specific file
+            const fileName = filePath.split('/').pop() || filePath;
+            console.log(`Opening file picker for: ${fileName}`);
+            
+            // Open file picker - user will need to navigate to the file
+            await openFile();
+          } catch (pickerError) {
+            console.error('File picker was cancelled or failed:', pickerError);
+          }
+        } else {
+          // Fallback for browsers without File System Access API
+          const fileName = filePath.split('/').pop() || filePath;
+          alert(`Cannot access file "${fileName}" directly. Please use the Open File button to select it manually.`);
+        }
       }
     } catch (error) {
       console.error('Error opening file:', error);
@@ -104,6 +121,7 @@ function App() {
         onFileOpen={handleFileOpen}
         onContentChange={handleContentChange}
         onSave={handleSave}
+        onFileLoad={loadFile}
         fileTree={fileTree}
         headerIds={headerIds}
       />

@@ -14,6 +14,7 @@ interface AppShellProps {
   onFileOpen?: (filePath: string) => void;
   onContentChange?: (content: string) => void;
   onSave?: (content: string) => void;
+  onFileLoad?: (file: File) => void;
   fileTree?: ReturnType<typeof useFileTree>;
   headerIds?: Map<string, string>;
 }
@@ -28,6 +29,7 @@ const AppShell: React.FC<AppShellProps> = ({
   onFileOpen,
   onContentChange,
   onSave,
+  onFileLoad,
   fileTree,
   headerIds,
 }) => {
@@ -59,6 +61,7 @@ const AppShell: React.FC<AppShellProps> = ({
           error={error}
           onContentChange={onContentChange}
           onSave={onSave}
+          onFileLoad={onFileLoad}
           headerIds={headerIds}
           className="h-full"
         />

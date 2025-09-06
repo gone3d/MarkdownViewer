@@ -455,7 +455,7 @@
   outline: none;
   white-space: pre-wrap;
   word-wrap: break-word;
-  overflow: hidden;
+  overflow: auto;
   pointer-events: none;
   z-index: 1;
   background: transparent;
@@ -512,6 +512,16 @@
   tab-size: 2;
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
+  /* Critical: Ensure identical text rendering and scrolling */
+  word-break: normal;
+  overflow-wrap: break-word;
+  font-kerning: none;
+  font-synthesis: none;
+  scroll-behavior: auto;
+  box-sizing: border-box;
+  /* Ensure both scroll containers behave identically */
+  scrollbar-width: thin;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 /* Background for the entire editor */

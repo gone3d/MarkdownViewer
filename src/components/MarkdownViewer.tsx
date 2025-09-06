@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -11,14 +11,25 @@ interface MarkdownViewerProps {
   file: MarkdownFile | null;
   className?: string;
   headerIds?: Map<string, string>;
+  onScroll?: (scrollTop: number, scrollHeight: number, clientHeight: number) => void;
 }
 
-const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
+export interface MarkdownViewerRef {
+  getScrollElement: () => HTMLElement | null;
+}
+
+const MarkdownViewer = forwardRef<MarkdownViewerRef, MarkdownViewerProps>(({
   file,
   className = '',
   headerIds,
-}) => {
+  onScroll,
+}, ref) => {
   const contentRef = useRef<HTMLElement>(null);
+
+  // Expose scroll element for synchronization
+  useImperativeHandle(ref, () => ({
+    getScrollElement: () => contentRef.current
+  }));
 
   // Helper to extract text from React children
   const extractTextFromChildren = useCallback((children: any): string => {
@@ -205,8 +216,16 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
     );
   }
 
+  // Handle scroll events
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (onScroll) {
+      const target = e.currentTarget;
+      onScroll(target.scrollTop, target.scrollHeight, target.clientHeight);
+    }
+  };
+
   return (
-    <div className={`h-full overflow-auto ${className}`}>
+    <div className={`h-full overflow-auto ${className}`} onScroll={handleScroll}>
       <div className="max-w-none p-6">
         {/* File Header */}
         <header className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -261,6 +280,8 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
       </div>
     </div>
   );
-};
+});
+
+MarkdownViewer.displayName = 'MarkdownViewer';
 
 export default MarkdownViewer;
