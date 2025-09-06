@@ -1,10 +1,12 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { parseMarkdown } from '../utils/markdownParser';
 
 interface SyntaxHighlightedEditorProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onScroll?: (e: React.UIEvent<HTMLTextAreaElement>) => void;
+  onCursorPositionChange?: (position: number) => void;
   readOnly?: boolean;
   placeholder?: string;
   className?: string;
@@ -30,6 +32,8 @@ const SyntaxHighlightedEditor = forwardRef<
       value,
       onChange,
       onKeyDown,
+      onScroll,
+      onCursorPositionChange,
       readOnly = false,
       placeholder = '',
       className = '',
@@ -45,12 +49,58 @@ const SyntaxHighlightedEditor = forwardRef<
       focus: () => textareaRef.current?.focus(),
     }));
 
-    // Synchronize scroll between textarea and highlight div
-    const handleScroll = () => {
+    // Ensure initial scroll synchronization when content changes
+    useEffect(() => {
       if (textareaRef.current && highlightRef.current) {
+        // Sync scroll positions on content change
         highlightRef.current.scrollTop = textareaRef.current.scrollTop;
         highlightRef.current.scrollLeft = textareaRef.current.scrollLeft;
       }
+    }, [value]);
+
+    // Synchronize scroll between textarea and highlight div
+    const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+      if (textareaRef.current && highlightRef.current) {
+        // Use requestAnimationFrame to ensure smooth synchronization
+        requestAnimationFrame(() => {
+          if (textareaRef.current && highlightRef.current) {
+            highlightRef.current.scrollTop = textareaRef.current.scrollTop;
+            highlightRef.current.scrollLeft = textareaRef.current.scrollLeft;
+          }
+        });
+      }
+      // Call the external onScroll handler if provided
+      onScroll?.(e);
+    };
+
+    // Handle cursor position changes (for smart viewer sync)
+    const handleCursorChange = (_e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+      console.log('🔧 SyntaxHighlightedEditor handleCursorChange called', {
+        hasCallback: !!onCursorPositionChange,
+        hasTextarea: !!textareaRef.current,
+        selectionStart: textareaRef.current?.selectionStart
+      });
+      if (onCursorPositionChange && textareaRef.current) {
+        const cursorPosition = textareaRef.current.selectionStart;
+        console.log('🔧 Calling onCursorPositionChange with position:', cursorPosition);
+        onCursorPositionChange(cursorPosition);
+      }
+    };
+
+    const handleClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+      handleCursorChange(e);
+    };
+
+    const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // Only update on cursor movement keys or selection keys
+      const cursorKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
+      if (cursorKeys.includes(e.key) || e.key.startsWith('Arrow')) {
+        handleCursorChange(e);
+      }
+    };
+
+    const handleSelect = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+      handleCursorChange(e);
     };
 
     // Apply syntax highlighting to content
@@ -113,6 +163,9 @@ const SyntaxHighlightedEditor = forwardRef<
           value={value}
           onChange={e => onChange(e.target.value)}
           onKeyDown={onKeyDown}
+          onKeyUp={handleKeyUp}
+          onClick={handleClick}
+          onSelect={handleSelect}
           onScroll={handleScroll}
           readOnly={readOnly}
           placeholder={placeholder}

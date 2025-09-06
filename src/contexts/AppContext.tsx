@@ -4,6 +4,7 @@ import FileService, {
   FileValidationError,
   FileOperationError,
 } from '../services/FileService';
+import { addRecentFile, recentFileToMarkdownFile, type RecentFile } from '../utils/recentFiles';
 
 // Extended file state with additional metadata
 export interface FileState {
@@ -48,6 +49,8 @@ interface AppContextType {
   state: AppState;
   // File operations
   openFile: () => Promise<void>;
+  openFileFromHandle: (fileHandle: FileSystemFileHandle) => Promise<void>;
+  openRecentFile: (recentFile: RecentFile) => Promise<void>;
   loadFile: (file: File) => Promise<void>;
   saveFile: (content?: string) => Promise<void>;
   createFile: (name?: string) => Promise<void>;
@@ -113,7 +116,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         globalError: null,
       };
 
-    case 'UPDATE_FILE_CONTENT':
+    case 'UPDATE_FILE_CONTENT': {
       if (!state.currentFile) return state;
       const newContent = action.payload.content;
       const hasChanges = action.payload.forceUnsaved !== undefined 
@@ -132,6 +135,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
           lastModifiedTime: new Date(),
         },
       };
+    }
 
     case 'UPDATE_FILE_NAME':
       if (!state.currentFile) return state;
@@ -198,12 +202,25 @@ function appReducer(state: AppState, action: AppAction): AppState {
         theme: action.payload,
       };
 
-    case 'ADD_RECENT_FILE':
+    case 'ADD_RECENT_FILE': {
+      // Add to localStorage using the utility
+      addRecentFile({
+        name: action.payload.name,
+        path: action.payload.path,
+        content: action.payload.content,
+        size: action.payload.size,
+        lastModified: action.payload.lastModified,
+        metadata: action.payload.metadata,
+        fileHandle: action.payload.fileHandle,
+      });
+      
+      // Keep the state logic for backward compatibility
       const filteredRecent = state.recentFiles.filter(f => f.id !== action.payload.id);
       return {
         ...state,
         recentFiles: [action.payload, ...filteredRecent].slice(0, 10), // Keep last 10
       };
+    }
 
     case 'SET_GLOBAL_LOADING':
       return {
@@ -287,6 +304,79 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       dispatch({ type: 'SET_GLOBAL_LOADING', payload: false });
     }
   }, [fileService]);
+
+  const openFileFromHandle = useCallback(async (fileHandle: FileSystemFileHandle) => {
+    dispatch({ type: 'SET_GLOBAL_LOADING', payload: true });
+    dispatch({ type: 'SET_GLOBAL_ERROR', payload: null });
+
+    try {
+      const markdownFile = await fileService.openFileFromHandle(fileHandle);
+      
+      const fileState: FileState = {
+        file: markdownFile,
+        originalContent: markdownFile.content,
+        hasUnsavedChanges: false,
+        lastSaveTime: null,
+        lastModifiedTime: markdownFile.lastModified,
+        isLoading: false,
+        error: null,
+      };
+      dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
+      dispatch({ type: 'ADD_RECENT_FILE', payload: markdownFile });
+    } catch (err) {
+      let errorMessage = 'Failed to open file from handle';
+      if (err instanceof FileValidationError) {
+        errorMessage = `File validation error: ${err.message}`;
+      } else if (err instanceof FileOperationError) {
+        errorMessage = `File operation error: ${err.message}`;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      dispatch({ type: 'SET_GLOBAL_ERROR', payload: errorMessage });
+    } finally {
+      dispatch({ type: 'SET_GLOBAL_LOADING', payload: false });
+    }
+  }, [fileService]);
+
+  const openRecentFile = useCallback(async (recentFile: RecentFile) => {
+    dispatch({ type: 'SET_GLOBAL_LOADING', payload: true });
+    dispatch({ type: 'SET_GLOBAL_ERROR', payload: null });
+
+    try {
+      // Convert the RecentFile to a MarkdownFile
+      const markdownFile = recentFileToMarkdownFile(recentFile);
+      
+      const fileState: FileState = {
+        file: markdownFile,
+        originalContent: markdownFile.content,
+        hasUnsavedChanges: false,
+        lastSaveTime: null,
+        lastModifiedTime: markdownFile.lastModified,
+        isLoading: false,
+        error: null,
+      };
+      dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
+      
+      // Update the recent file timestamp (move to top of list)
+      addRecentFile({
+        name: recentFile.name,
+        path: recentFile.path,
+        content: recentFile.content,
+        size: recentFile.size,
+        lastModified: new Date(recentFile.lastModified),
+        metadata: recentFile.metadata,
+        fileHandle: recentFile.fileHandle,
+      });
+    } catch (err) {
+      let errorMessage = 'Failed to open recent file';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      dispatch({ type: 'SET_GLOBAL_ERROR', payload: errorMessage });
+    } finally {
+      dispatch({ type: 'SET_GLOBAL_LOADING', payload: false });
+    }
+  }, []);
 
   const loadFile = useCallback(async (file: File) => {
     dispatch({ type: 'SET_GLOBAL_LOADING', payload: true });
@@ -558,9 +648,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return state.currentFile?.hasUnsavedChanges ?? false;
   }, [state.currentFile]);
 
+
   const contextValue: AppContextType = {
     state,
     openFile,
+    openFileFromHandle,
+    openRecentFile,
     loadFile,
     saveFile,
     createFile,

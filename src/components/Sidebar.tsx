@@ -4,6 +4,7 @@ import { Files, List, Search } from 'lucide-react';
 import { useFileTree } from '../hooks/useFileTree';
 import TableOfContents from './TableOfContents';
 import FileBrowser from './FileBrowser';
+import RecentFiles from './RecentFiles';
 
 interface SidebarProps {
   mode: SidebarMode;
@@ -59,20 +60,30 @@ const Sidebar: React.FC<SidebarProps> = ({
         className={`flex-1 overflow-auto ${mode === 'toc' || mode === 'files' ? '' : 'p-4'}`}
       >
         {mode === 'files' && (
-          <FileBrowser
-            onFileSelect={node => {
-              if (node.type === 'file' && node.isMarkdown && onFileSelect) {
-                onFileSelect(node.path);
-              }
-            }}
-            onFileOpen={node => {
-              if (node.type === 'file' && node.isMarkdown && onFileOpen) {
-                onFileOpen(node.path);
-              }
-            }}
-            fileTree={fileTree}
-            className="h-full"
-          />
+          <div className="h-full flex flex-col">
+            <RecentFiles
+              onFileSelect={filePath => {
+                if (onFileOpen) {
+                  onFileOpen(filePath);
+                }
+              }}
+              className="flex-shrink-0"
+            />
+            <FileBrowser
+              onFileSelect={node => {
+                if (node.type === 'file' && node.isMarkdown && onFileSelect) {
+                  onFileSelect(node.path);
+                }
+              }}
+              onFileOpen={node => {
+                if (node.type === 'file' && node.isMarkdown && onFileOpen) {
+                  onFileOpen(node.path);
+                }
+              }}
+              fileTree={fileTree}
+              className="flex-1 min-h-0"
+            />
+          </div>
         )}
 
         {mode === 'toc' && (
