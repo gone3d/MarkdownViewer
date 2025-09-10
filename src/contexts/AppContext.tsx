@@ -59,6 +59,7 @@ interface AppContextType {
   deleteFile: () => Promise<boolean>; // Returns true if confirmed and deleted
   closeFile: () => void;
   updateFileContent: (content: string, markAsUnsaved?: boolean) => void;
+  loadWelcomeFile: () => Promise<void>;
   // UI operations  
   setViewMode: (mode: ViewMode) => void;
   setSidebarOpen: (open: boolean) => void;
@@ -671,6 +672,44 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return state.currentFile?.hasUnsavedChanges ?? false;
   }, [state.currentFile]);
 
+  // Load welcome file (README.md) for first-time users
+  const loadWelcomeFile = useCallback(async () => {
+    try {
+      console.log('Loading welcome file (README.md)...');
+      const response = await fetch('/README.md');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch README.md: ${response.status}`);
+      }
+      
+      const content = await response.text();
+      const markdownFile: MarkdownFile = {
+        name: 'README.md',
+        content,
+        path: '/README.md',
+        size: content.length,
+        lastModified: new Date(),
+        fileHandle: undefined // No file handle for bundled file
+      };
+
+      const fileState: FileState = {
+        file: markdownFile,
+        originalContent: content,
+        hasUnsavedChanges: false,
+        lastSaveTime: null,
+        lastModifiedTime: markdownFile.lastModified,
+        isLoading: false,
+        error: null,
+      };
+
+      dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
+      console.log('✅ Welcome file loaded successfully');
+      
+    } catch (error) {
+      console.warn('⚠️ Could not load welcome file:', error);
+      // Don't dispatch error - this is optional functionality
+    }
+  }, []);
+
 
   const contextValue: AppContextType = {
     state,
@@ -685,6 +724,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     deleteFile,
     closeFile,
     updateFileContent,
+    loadWelcomeFile,
     setViewMode,
     setSidebarOpen,
     toggleSidebar,
