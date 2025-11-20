@@ -682,12 +682,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
       
       const content = await response.text();
+      const now = new Date();
       const markdownFile: MarkdownFile = {
+        id: '/README.md',
         name: 'README.md',
         content,
         path: '/README.md',
         size: content.length,
-        lastModified: new Date(),
+        lastModified: now,
+        created: now,
         fileHandle: undefined // No file handle for bundled file
       };
 
