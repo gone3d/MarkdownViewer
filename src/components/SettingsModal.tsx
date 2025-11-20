@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Settings, Download, Upload, RotateCcw, Save } from 'lucide-react';
+import { X, Settings, Download, Upload, RotateCcw } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { AppSettings } from '../types/settings';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -160,27 +161,27 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
             {activeTab === 'file-management' && (
-              <FileManagementSettings 
+              <FileManagementSettings
                 settings={settings.fileManagement}
-                onChange={(updates) => updateSettings({ fileManagement: updates })}
+                onChange={(updates) => updateSettings({ fileManagement: { ...settings.fileManagement, ...updates } })}
               />
             )}
             {activeTab === 'editor' && (
-              <EditorSettings 
+              <EditorSettings
                 settings={settings.editor}
-                onChange={(updates) => updateSettings({ editor: updates })}
+                onChange={(updates) => updateSettings({ editor: { ...settings.editor, ...updates } })}
               />
             )}
             {activeTab === 'ui' && (
-              <UISettings 
+              <UISettings
                 settings={settings.ui}
-                onChange={(updates) => updateSettings({ ui: updates })}
+                onChange={(updates) => updateSettings({ ui: { ...settings.ui, ...updates } })}
               />
             )}
             {activeTab === 'performance' && (
-              <PerformanceSettings 
+              <PerformanceSettings
                 settings={settings.performance}
-                onChange={(updates) => updateSettings({ performance: updates })}
+                onChange={(updates) => updateSettings({ performance: { ...settings.performance, ...updates } })}
               />
             )}
           </div>
@@ -192,8 +193,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
 // File Management Settings Component
 interface FileManagementSettingsProps {
-  settings: typeof settings.fileManagement;
-  onChange: (updates: Partial<typeof settings.fileManagement>) => void;
+  settings: AppSettings['fileManagement'];
+  onChange: (updates: Partial<AppSettings['fileManagement']>) => void;
 }
 
 const FileManagementSettings: React.FC<FileManagementSettingsProps> = ({ settings, onChange }) => (
@@ -280,10 +281,10 @@ const FileManagementSettings: React.FC<FileManagementSettingsProps> = ({ setting
   </div>
 );
 
-// Editor Settings Component  
+// Editor Settings Component
 interface EditorSettingsProps {
-  settings: typeof settings.editor;
-  onChange: (updates: Partial<typeof settings.editor>) => void;
+  settings: AppSettings['editor'];
+  onChange: (updates: Partial<AppSettings['editor']>) => void;
 }
 
 const EditorSettings: React.FC<EditorSettingsProps> = ({ settings, onChange }) => (
@@ -354,8 +355,8 @@ const EditorSettings: React.FC<EditorSettingsProps> = ({ settings, onChange }) =
 
 // UI Settings Component
 interface UISettingsProps {
-  settings: typeof settings.ui;
-  onChange: (updates: Partial<typeof settings.ui>) => void;
+  settings: AppSettings['ui'];
+  onChange: (updates: Partial<AppSettings['ui']>) => void;
 }
 
 const UISettings: React.FC<UISettingsProps> = ({ settings, onChange }) => (
@@ -420,8 +421,8 @@ const UISettings: React.FC<UISettingsProps> = ({ settings, onChange }) => (
 
 // Performance Settings Component
 interface PerformanceSettingsProps {
-  settings: typeof settings.performance;
-  onChange: (updates: Partial<typeof settings.performance>) => void;
+  settings: AppSettings['performance'];
+  onChange: (updates: Partial<AppSettings['performance']>) => void;
 }
 
 const PerformanceSettings: React.FC<PerformanceSettingsProps> = ({ settings, onChange }) => (
