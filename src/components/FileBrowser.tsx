@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { FileTreeNode } from '../types/fileTree';
 import { useFileTree } from '../hooks/useFileTree';
+import { FolderPickerModal } from './molecules/FolderPickerModal';
 
 interface FileBrowserProps {
   onFileSelect?: (node: FileTreeNode) => void;
@@ -43,6 +44,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
   const [editName, setEditName] = useState('');
   const [contextMenuNode, setContextMenuNode] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [showFolderPicker, setShowFolderPicker] = useState(false);
 
   const {
     treeState,
@@ -67,11 +69,16 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
     }
   }, [contextMenuNode]);
 
-  // Handle file click
+  // Handle file click - open directly if markdown, just select otherwise
   const handleFileClick = (node: FileTreeNode) => {
     if (node.type === 'file') {
       selectFile(node.id);
       onFileSelect?.(node);
+
+      // Auto-open markdown files on click (like Recent Files)
+      if (node.isMarkdown && onFileOpen) {
+        onFileOpen(node);
+      }
     }
   };
 
@@ -146,6 +153,23 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
     setEditName('');
   };
 
+  // Handle folder picker flow
+  const handleOpenFolderClick = () => {
+    setShowFolderPicker(true);
+  };
+
+  const handleFolderPickerConfirm = async () => {
+    setShowFolderPicker(false);
+    // Small delay to let modal close before showing system picker
+    setTimeout(() => {
+      openDirectory();
+    }, 150);
+  };
+
+  const handleFolderPickerCancel = () => {
+    setShowFolderPicker(false);
+  };
+
   const handleDelete = async (node: FileTreeNode) => {
     if (!confirm(`Are you sure you want to delete "${node.name}"?`)) {
       return;
@@ -210,7 +234,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
               )}
               
               <button
-                onClick={openDirectory}
+                onClick={handleOpenFolderClick}
                 disabled={isLoading}
                 className="text-xs px-2 py-1 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white rounded transition-colors flex items-center gap-1"
               >
@@ -487,6 +511,13 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
           </div>
         </div>
       )}
+
+      {/* Folder Picker Modal */}
+      <FolderPickerModal
+        isOpen={showFolderPicker}
+        onConfirm={handleFolderPickerConfirm}
+        onCancel={handleFolderPickerCancel}
+      />
     </div>
   );
 };

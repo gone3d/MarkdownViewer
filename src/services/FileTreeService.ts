@@ -26,9 +26,10 @@ export class FileTreeService {
     }
 
     try {
-      // Show directory picker
+      // Show directory picker - user selection IS the permission grant
       const directoryHandle = await (window as any).showDirectoryPicker({
         mode: 'read',
+        startIn: 'documents', // Better UX: start in documents folder
       });
 
       // Build tree from directory handle
