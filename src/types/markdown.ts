@@ -26,6 +26,8 @@ export interface TableOfContentsItem {
   level: number;
   anchor: string;
   children?: TableOfContentsItem[];
+  depth?: number;
+  lineNumber?: number;
 }
 
 export interface SearchResult {
@@ -52,3 +54,11 @@ export interface MarkdownViewerSettings {
 
 export type ViewMode = 'viewer' | 'editor' | 'split';
 export type SidebarMode = 'files' | 'toc' | 'search' | 'hidden';
+
+// File type definitions for multi-format support
+export type FileType = 'markdown' | 'yaml' | 'text';
+
+// Universal file interface that supports multiple file types
+export interface UniversalFile extends MarkdownFile {
+  fileType: FileType;
+}

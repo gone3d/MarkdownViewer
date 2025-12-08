@@ -1,4 +1,5 @@
 // Recent Files Management Utility
+import { FileType } from '../types/markdown';
 
 export interface RecentFile {
   id: string;
@@ -10,9 +11,10 @@ export interface RecentFile {
   lastModified: number; // timestamp
   metadata?: Record<string, any>;
   fileHandle?: FileSystemFileHandle; // Still keep for in-session direct access
+  fileType?: FileType; // Store file type for proper rendering
 }
 
-const RECENT_FILES_KEY = 'markdownviewer-recent-files';
+const RECENT_FILES_KEY = 'datadoc-recent-files';
 const MAX_RECENT_FILES = 10;
 
 // In-memory cache for fileHandles (can't be serialized to localStorage)
@@ -62,22 +64,26 @@ export function addRecentFile(file: {
   lastModified: Date;
   metadata?: Record<string, any>;
   fileHandle?: FileSystemFileHandle;
+  fileType?: FileType;
 }): void {
   try {
     const recentFiles = getRecentFiles();
     const now = Date.now();
-    
+
     // Create unique ID from path
     const id = btoa(file.path).replace(/[^a-zA-Z0-9]/g, '');
-    
+
     // Remove existing entry if it exists
     const filteredFiles = recentFiles.filter(f => f.id !== id);
-    
+
     // Store fileHandle in memory cache if provided
     if (file.fileHandle) {
       fileHandleCache.set(id, file.fileHandle);
     }
-    
+
+    // Infer file type from extension if not provided
+    const fileType = file.fileType || inferFileType(file.name);
+
     // Add new entry at the beginning
     const newFile: RecentFile = {
       id,
@@ -88,13 +94,14 @@ export function addRecentFile(file: {
       lastModified: file.lastModified.getTime(),
       size: file.size,
       metadata: file.metadata,
+      fileType,
       // Note: FileSystemFileHandle will be restored from memory cache in getRecentFiles()
     };
-    
+
     const updatedFiles = [newFile, ...filteredFiles].slice(0, MAX_RECENT_FILES);
-    
+
     localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(updatedFiles));
-    
+
     // Dispatch custom event for same-tab updates
     window.dispatchEvent(new CustomEvent('recentFilesUpdated'));
   } catch (error) {
@@ -139,7 +146,17 @@ export function clearRecentFiles(): void {
 }
 
 /**
- * Convert a RecentFile to a MarkdownFile for opening
+ * Infer file type from filename extension
+ */
+function inferFileType(filename: string): FileType {
+  const ext = filename.toLowerCase().split('.').pop();
+  if (ext === 'yml' || ext === 'yaml') return 'yaml';
+  if (ext === 'md' || ext === 'markdown' || ext === 'mdown') return 'markdown';
+  return 'text';
+}
+
+/**
+ * Convert a RecentFile to a UniversalFile for opening
  */
 export function recentFileToMarkdownFile(recentFile: RecentFile): {
   id: string;
@@ -151,6 +168,7 @@ export function recentFileToMarkdownFile(recentFile: RecentFile): {
   created: Date;
   metadata?: Record<string, any>;
   fileHandle?: FileSystemFileHandle;
+  fileType: FileType;
 } {
   return {
     id: crypto.randomUUID(),
@@ -162,6 +180,7 @@ export function recentFileToMarkdownFile(recentFile: RecentFile): {
     created: new Date(recentFile.lastModified),
     metadata: recentFile.metadata,
     fileHandle: recentFile.fileHandle,
+    fileType: recentFile.fileType || inferFileType(recentFile.name),
   };
 }
 

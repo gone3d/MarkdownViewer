@@ -5,6 +5,8 @@ export interface TOCItem {
   text: string;
   level: number;
   children: TOCItem[];
+  depth?: number;
+  lineNumber?: number;
 }
 
 /**

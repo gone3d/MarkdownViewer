@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MarkdownFile, ViewMode } from '../types/markdown';
+import { UniversalFile, ViewMode } from '../types/markdown';
 import MarkdownViewer from './MarkdownViewer';
 import MarkdownEditor from './MarkdownEditor';
+import YamlEditor, { YamlEditorRef } from './YamlEditor';
+import YamlViewer from './YamlViewer';
 import { FileText, AlertCircle } from 'lucide-react';
 
 interface ContentAreaProps {
-  currentFile: MarkdownFile | null;
+  currentFile: UniversalFile | null;
   viewMode: ViewMode;
   isLoading?: boolean;
   error?: string | null;
@@ -14,6 +16,7 @@ interface ContentAreaProps {
   onFileLoad?: (file: File) => void;
   className?: string;
   headerIds?: Map<string, string>;
+  yamlEditorRef?: React.RefObject<YamlEditorRef>;
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({
@@ -26,17 +29,22 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onFileLoad,
   className = '',
   headerIds,
+  yamlEditorRef: externalYamlEditorRef,
 }) => {
   // Local state for editor content (for split view synchronization)
   const [editorContent, setEditorContent] = useState<string>('');
   const [isHorizontalSplit, setIsHorizontalSplit] = useState<boolean>(true);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Refs for scroll synchronization
   const editorRef = useRef<{ getScrollElement: () => HTMLElement | null } | null>(null);
   const viewerRef = useRef<{ getScrollElement: () => HTMLElement | null } | null>(null);
+  const internalYamlEditorRef = useRef<YamlEditorRef | null>(null);
   const isScrollingSyncRef = useRef<boolean>(false);
+
+  // Use external ref if provided, otherwise use internal
+  const yamlEditorRef = externalYamlEditorRef || internalYamlEditorRef;
 
   // Initialize editor content when file changes
   useEffect(() => {
@@ -205,12 +213,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     // Only process the first file
     const file = files[0];
     
-    // Check if it's a valid markdown file
-    const validExtensions = ['.md', '.markdown', '.txt'];
+    // Check if it's a valid file
+    const validExtensions = ['.md', '.markdown', '.yml', '.yaml', '.txt'];
     const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-    
+
     if (!validExtensions.includes(fileExtension)) {
-      console.warn('Invalid file type. Please drop a markdown file (.md, .markdown, .txt)');
+      console.warn('Invalid file type. Please drop a supported file (.md, .markdown, .yml, .yaml, .txt)');
       return;
     }
 
@@ -265,25 +273,25 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           <div className="absolute inset-0 bg-blue-500/20 border-2 border-dashed border-blue-500 dark:border-blue-400 flex items-center justify-center z-10">
             <div className="text-center text-blue-600 dark:text-blue-400">
               <FileText className="h-16 w-16 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Drop your markdown file here</h3>
-              <p>Supports .md, .markdown, and .txt files</p>
+              <h3 className="text-xl font-semibold mb-2">Drop your file here</h3>
+              <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
             </div>
           </div>
         )}
         
         <div className="text-center text-gray-500 dark:text-gray-400 max-w-md">
           <FileText className="h-16 w-16 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold mb-4">Welcome to MarkdownViewer</h2>
+          <h2 className="text-2xl font-bold mb-4">Welcome to DataDoc</h2>
           <p className="mb-6 leading-relaxed">
-            Select a markdown file from the sidebar, open a file, or <span className="font-semibold text-blue-600 dark:text-blue-400">drag & drop a file here</span> to start
-            viewing and editing your markdown content with live preview and
-            table of contents.
+            Select a file from the sidebar, open a file, or <span className="font-semibold text-blue-600 dark:text-blue-400">drag & drop a file here</span> to start
+            viewing and editing your markdown and YAML content with live preview,
+            syntax highlighting, and advanced editing features.
           </p>
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-left">
             <h3 className="font-semibold mb-2">Supported formats:</h3>
             <ul className="text-sm space-y-1">
-              <li>• .md (Markdown)</li>
-              <li>• .markdown</li>
+              <li>• .md, .markdown (Markdown)</li>
+              <li>• .yml, .yaml (YAML)</li>
               <li>• .txt (Plain text)</li>
             </ul>
           </div>
@@ -292,11 +300,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     );
   }
 
+  // Determine file type for conditional rendering
+  const isYamlFile = currentFile?.fileType === 'yaml';
+
   // Render based on view mode
   switch (viewMode) {
     case 'viewer':
       return (
-        <div 
+        <div
           className={`h-full ${className} relative`}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -309,22 +320,26 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               <div className="text-center text-blue-600 dark:text-blue-400">
                 <FileText className="h-16 w-16 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
-                <p>Supports .md, .markdown, and .txt files</p>
+                <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
               </div>
             </div>
           )}
-          
-          <MarkdownViewer
-            file={currentFile}
-            headerIds={headerIds}
-            className="h-full"
-          />
+
+          {isYamlFile ? (
+            <YamlViewer file={currentFile} />
+          ) : (
+            <MarkdownViewer
+              file={currentFile}
+              headerIds={headerIds}
+              className="h-full"
+            />
+          )}
         </div>
       );
 
     case 'editor':
       return (
-        <div 
+        <div
           className={`h-full ${className} relative`}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -337,21 +352,62 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               <div className="text-center text-blue-600 dark:text-blue-400">
                 <FileText className="h-16 w-16 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
-                <p>Supports .md, .markdown, and .txt files</p>
+                <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
               </div>
             </div>
           )}
-          
-          <MarkdownEditor
-            file={currentFile}
-            onChange={handleContentChange}
-            onSave={handleSave}
-            className="h-full"
-          />
+
+          {isYamlFile ? (
+            <YamlEditor
+              ref={yamlEditorRef}
+              file={currentFile}
+              onChange={handleContentChange}
+              onSave={handleSave}
+            />
+          ) : (
+            <MarkdownEditor
+              file={currentFile}
+              onChange={handleContentChange}
+              onSave={handleSave}
+              className="h-full"
+            />
+          )}
         </div>
       );
 
     case 'split':
+      // YAML files don't support split view, fall back to editor
+      if (isYamlFile) {
+        return (
+          <div
+            className={`h-full ${className} relative`}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            {/* Drag overlay */}
+            {isDragOver && (
+              <div className="absolute inset-0 bg-blue-500/20 border-2 border-dashed border-blue-500 dark:border-blue-400 flex items-center justify-center z-20">
+                <div className="text-center text-blue-600 dark:text-blue-400">
+                  <FileText className="h-16 w-16 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
+                  <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
+                </div>
+              </div>
+            )}
+
+            <YamlEditor
+              ref={yamlEditorRef}
+              file={currentFile}
+              onChange={handleContentChange}
+              onSave={handleSave}
+            />
+          </div>
+        );
+      }
+
+      // Markdown split view
       return (
         <div
           ref={containerRef}
@@ -367,11 +423,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               <div className="text-center text-blue-600 dark:text-blue-400">
                 <FileText className="h-16 w-16 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
-                <p>Supports .md, .markdown, and .txt files</p>
+                <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
               </div>
             </div>
           )}
-          
+
           <div
             className={`${
               isHorizontalSplit
@@ -415,11 +471,15 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     default:
       return (
         <div className={`h-full ${className}`}>
-          <MarkdownViewer
-            file={currentFile}
-            headerIds={headerIds}
-            className="h-full"
-          />
+          {isYamlFile ? (
+            <YamlViewer file={currentFile} />
+          ) : (
+            <MarkdownViewer
+              file={currentFile}
+              headerIds={headerIds}
+              className="h-full"
+            />
+          )}
         </div>
       );
   }

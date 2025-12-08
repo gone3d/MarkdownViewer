@@ -1,6 +1,6 @@
 # MarkdownViewer
 
-A modern, local/server application for viewing, editing, and organizing markdown files with advanced features like automatic table of contents generation and media asset management. Future development will integrate AI(s) to aid in content and editing.
+A modern, local/server application for viewing, editing, and organizing markdown and YAML files with advanced features like automatic table of contents generation, syntax highlighting, and media asset management. Future development will integrate AI(s) to aid in content and editing.
 
 ## Table of Contents
 
@@ -18,6 +18,7 @@ MarkdownViewer is designed to be the definitive solution for markdown file manag
 
 ### 🚀 Recent Major Updates
 
+- **📝 YAML Support**: Full editing and viewing support for .yml/.yaml files with syntax highlighting
 - **🎨 Advanced Syntax Highlighting**: VS Code-authentic editor colors with two-layer architecture
 - **💾 Smart Save Operations**: Files save to original location using File System Access API
 - **🧠 Intelligent Code Parsing**: TOC excludes `#` characters inside code blocks and fenced regions

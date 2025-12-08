@@ -31,6 +31,10 @@ const Header: React.FC<HeaderProps> = ({
   const { state, openFile, saveFile, createFile, renameFile, duplicateFile, deleteFile } = useAppContext();
   const hasUnsavedChanges = state.currentFile?.hasUnsavedChanges ?? false;
 
+  // Get current file type - markdown files get viewer/editor/split, YAML gets only editor
+  const currentFileType = state.currentFile?.file.fileType || 'markdown';
+  const showViewModeSelector = currentFileType === 'markdown';
+
   // File operations handlers
   const handleNewFile = async () => {
     const name = prompt('Enter file name (optional):');
@@ -144,7 +148,7 @@ const Header: React.FC<HeaderProps> = ({
             className="text-xl font-bold text-gray-900 dark:text-gray-100 cursor-default"
             title={`Version ${packageJson.version}`}
           >
-            MarkdownViewer
+            {packageJson.displayName || packageJson.name}
           </h1>
           {hasUnsavedChanges && (
             <div 
@@ -168,22 +172,34 @@ const Header: React.FC<HeaderProps> = ({
           align="left"
         />
 
-        {/* View Mode Selector */}
-        <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-          {(['viewer', 'editor', 'split'] as ViewMode[]).map(mode => (
-            <button
-              key={mode}
-              onClick={() => onViewModeChange(mode)}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === mode
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-              }`}
-            >
-              {mode.charAt(0).toUpperCase() + mode.slice(1)}
-            </button>
-          ))}
-        </div>
+        {/* View Mode Selector - Only for Markdown files */}
+        {showViewModeSelector && (
+          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            {(['viewer', 'editor', 'split'] as ViewMode[]).map(mode => (
+              <button
+                key={mode}
+                onClick={() => onViewModeChange(mode)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === mode
+                    ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
+              >
+                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* File Type Indicator for YAML */}
+        {currentFileType === 'yaml' && state.currentFile && (
+          <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+            <FileText className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+              YAML Editor
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Right side - Settings & Theme Toggle */}

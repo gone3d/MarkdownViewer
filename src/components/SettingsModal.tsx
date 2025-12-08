@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Settings, Download, Upload, RotateCcw } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { AppSettings } from '../types/settings';
+import packageJson from '../../package.json';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -45,7 +46,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'markdownviewer-settings.json';
+    a.download = 'datadoc-settings.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -139,8 +140,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
         <div className="flex h-[calc(90vh-120px)]">
           {/* Sidebar */}
-          <div className="w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <nav className="p-4 space-y-2">
+          <div className="w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex flex-col">
+            <nav className="p-4 space-y-2 flex-1">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -156,6 +157,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 </button>
               ))}
             </nav>
+
+            {/* Version Info */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">{packageJson.displayName || packageJson.name}</p>
+                <p className="text-xs font-mono text-gray-400 dark:text-gray-500 mt-0.5">v{packageJson.version}</p>
+              </div>
+            </div>
           </div>
 
           {/* Content */}
