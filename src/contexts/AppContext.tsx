@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from 'react';
-import { MarkdownFile, ViewMode, UniversalFile } from '../types/markdown';
+import { ViewMode, UniversalFile } from '../types/markdown';
 import FileService, {
   FileValidationError,
   FileOperationError,
@@ -507,7 +507,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const fullName = fileName.endsWith('.md') ? fileName : `${fileName}.md`;
       
       // Create a new blank markdown file
-      const newFile: MarkdownFile = {
+      const newFile: UniversalFile = {
         id: Date.now().toString(),
         name: fullName,
         path: '',
@@ -516,6 +516,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         lastModified: new Date(),
         created: new Date(),
         metadata: {},
+        fileType: 'markdown',
       };
 
       const fileState: FileState = {
@@ -566,7 +567,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const fullName = baseName.endsWith('.md') ? baseName : `${baseName}.md`;
 
       // Create a duplicate file with same content
-      const duplicateFile: MarkdownFile = {
+      const duplicateFile: UniversalFile = {
         id: Date.now().toString(),
         name: fullName,
         path: '',
@@ -576,6 +577,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         created: new Date(),
         tags: [...(originalFile.tags || [])],
         metadata: { ...originalFile.metadata },
+        fileType: originalFile.fileType,
       };
 
       const fileState: FileState = {
@@ -705,7 +707,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       
       const content = await response.text();
       const now = new Date();
-      const markdownFile: MarkdownFile = {
+      const markdownFile: UniversalFile = {
         id: '/README.md',
         name: 'README.md',
         content,
@@ -713,7 +715,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         size: content.length,
         lastModified: now,
         created: now,
-        fileHandle: undefined // No file handle for bundled file
+        fileHandle: undefined, // No file handle for bundled file
+        fileType: 'markdown'
       };
 
       const fileState: FileState = {

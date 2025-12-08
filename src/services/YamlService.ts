@@ -94,10 +94,6 @@ class YamlService {
           continue;
         }
 
-        // Calculate proper indentation based on structure
-        const isListItem = trimmed.startsWith('-');
-        const isKeyValue = trimmed.includes(':') && !isListItem;
-
         // Get current line indentation
         const originalIndent = line.search(/\S/);
 

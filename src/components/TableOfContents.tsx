@@ -141,13 +141,14 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
           for (let i = index - 1; i >= 0; i--) {
             const previousItem = flatTocItems[i];
             if (
+              previousItem.depth !== undefined && item.depth !== undefined &&
               previousItem.depth < item.depth &&
               collapsedItems.has(previousItem.id)
             ) {
               shouldHide = true;
               break;
             }
-            if (previousItem.depth <= item.depth) break;
+            if (previousItem.depth !== undefined && item.depth !== undefined && previousItem.depth <= item.depth) break;
           }
 
           if (shouldHide) return null;
@@ -156,9 +157,9 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
             <div key={item.id} className="group">
               <div
                 className={`flex items-center gap-1 py-0.5 px-2 rounded-md cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                  item.depth > 0 ? 'ml-' + item.depth * 4 : ''
+                  item.depth !== undefined && item.depth > 0 ? 'ml-' + item.depth * 4 : ''
                 }`}
-                style={{ marginLeft: `${item.depth * 16}px` }}
+                style={{ marginLeft: `${(item.depth || 0) * 16}px` }}
                 onClick={() => handleItemClick(item.id, (item as any).lineNumber)}
               >
                 {hasChildren && (

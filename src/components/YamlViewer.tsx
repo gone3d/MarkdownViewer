@@ -43,7 +43,6 @@ const YamlViewer: React.FC<YamlViewerProps> = ({ file }) => {
       // Filter overlapping tokens
       const filteredTokens = filterOverlappingTokens(tokens);
 
-      const lines = file.content.split('\n');
       let result = '';
       let lastIndex = 0;
       let currentLine = 0;

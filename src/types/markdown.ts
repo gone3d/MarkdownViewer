@@ -26,6 +26,8 @@ export interface TableOfContentsItem {
   level: number;
   anchor: string;
   children?: TableOfContentsItem[];
+  depth?: number;
+  lineNumber?: number;
 }
 
 export interface SearchResult {

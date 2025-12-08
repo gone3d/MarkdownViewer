@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { ViewMode, SidebarMode, MarkdownFile } from '../types/markdown';
+import { ViewMode, SidebarMode, UniversalFile } from '../types/markdown';
 import { useFileTree } from '../hooks/useFileTree';
 import Sidebar from './Sidebar';
 import ContentArea from './ContentArea';
@@ -8,7 +8,7 @@ import { YamlEditorRef } from './YamlEditor';
 interface AppShellProps {
   sidebarOpen: boolean;
   viewMode: ViewMode;
-  currentFile: MarkdownFile | null;
+  currentFile: UniversalFile | null;
   isLoading: boolean;
   error: string | null;
   onFileSelect?: (filePath: string) => void;

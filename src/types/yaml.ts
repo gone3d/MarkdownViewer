@@ -50,4 +50,5 @@ export type YamlTokenType =
   | 'document-separator'
   | 'indent'
   | 'quote'
+  | 'multiline-indicator'
   | 'text';
