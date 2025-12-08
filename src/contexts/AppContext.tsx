@@ -99,7 +99,7 @@ const getInitialTheme = (): 'light' | 'dark' => {
 
 const initialState: AppState = {
   currentFile: null,
-  viewMode: 'viewer',
+  viewMode: 'editor',
   sidebarOpen: true,
   theme: getInitialTheme(),
   recentFiles: [],

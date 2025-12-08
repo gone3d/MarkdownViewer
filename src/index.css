@@ -300,6 +300,120 @@
 }
 
 /* ========================================
+   JSON Syntax Highlighting Styles
+   ======================================== */
+
+/* JSON Keys */
+.json-key {
+  color: #0451a5;
+  font-weight: 600;
+}
+
+.dark .json-key {
+  color: #9cdcfe;
+}
+
+/* JSON Braces { } */
+.json-brace-open,
+.json-brace-close {
+  color: #000000;
+  font-weight: bold;
+}
+
+.dark .json-brace-open,
+.dark .json-brace-close {
+  color: #ffd700;
+}
+
+/* JSON Brackets [ ] */
+.json-bracket-open,
+.json-bracket-close {
+  color: #000000;
+  font-weight: bold;
+}
+
+.dark .json-bracket-open,
+.dark .json-bracket-close {
+  color: #ffa500;
+}
+
+/* JSON Colon */
+.json-colon {
+  color: #666666;
+}
+
+.dark .json-colon {
+  color: #9e9e9e;
+}
+
+/* JSON Comma */
+.json-comma {
+  color: #666666;
+}
+
+.dark .json-comma {
+  color: #9e9e9e;
+}
+
+/* JSON String Values */
+.json-value-string {
+  color: #a31515;
+}
+
+.dark .json-value-string {
+  color: #ce9178;
+}
+
+/* JSON Number Values */
+.json-value-number {
+  color: #098658;
+}
+
+.dark .json-value-number {
+  color: #b5cea8;
+}
+
+/* JSON Boolean Values */
+.json-value-boolean {
+  color: #0000ff;
+  font-weight: 500;
+}
+
+.dark .json-value-boolean {
+  color: #569cd6;
+}
+
+/* JSON Null Values */
+.json-value-null {
+  color: #0000ff;
+  font-style: italic;
+}
+
+.dark .json-value-null {
+  color: #569cd6;
+}
+
+/* JSON Quotes */
+.json-quote {
+  color: #a31515;
+}
+
+.dark .json-quote {
+  color: #ce9178;
+}
+
+/* JSON Syntax Error Highlighting */
+.json-error {
+  background-color: #ff00001a;
+  border-bottom: 2px solid #ff0000;
+}
+
+.dark .json-error {
+  background-color: #ff00002a;
+  border-bottom: 2px solid #ff6b6b;
+}
+
+/* ========================================
    Line Numbers Styles
    ======================================== */
 

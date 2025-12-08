@@ -26,7 +26,7 @@ class FileService {
   private static instance: FileService;
   private fileSystemSupported: boolean;
   private readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  private readonly SUPPORTED_EXTENSIONS = ['.md', '.markdown', '.txt', '.text', '.yml', '.yaml'];
+  private readonly SUPPORTED_EXTENSIONS = ['.md', '.markdown', '.txt', '.text', '.yml', '.yaml', '.json'];
 
   constructor() {
     this.fileSystemSupported = 'showOpenFilePicker' in window;
@@ -75,6 +75,7 @@ class FileService {
   private getFileType(filename: string): FileType {
     const extension = this.getFileExtension(filename);
     if (['.yml', '.yaml'].includes(extension)) return 'yaml';
+    if (['.json'].includes(extension)) return 'json';
     if (['.md', '.markdown'].includes(extension)) return 'markdown';
     return 'text';
   }
@@ -204,6 +205,7 @@ class FileService {
               'text/plain': ['.txt', '.text'],
               'text/yaml': ['.yml', '.yaml'],
               'application/x-yaml': ['.yml', '.yaml'],
+              'application/json': ['.json'],
             },
           },
           {
@@ -218,6 +220,12 @@ class FileService {
             accept: {
               'text/yaml': ['.yml', '.yaml'],
               'application/x-yaml': ['.yml', '.yaml'],
+            },
+          },
+          {
+            description: 'JSON files',
+            accept: {
+              'application/json': ['.json'],
             },
           },
         ],
@@ -278,7 +286,7 @@ class FileService {
     return new Promise((resolve, reject) => {
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = '.md,.markdown,.txt,.text,.yml,.yaml';
+      input.accept = '.md,.markdown,.txt,.text,.yml,.yaml,.json';
 
       input.onchange = async event => {
         try {
@@ -475,6 +483,12 @@ class FileService {
             accept: {
               'text/yaml': ['.yml', '.yaml'],
               'application/x-yaml': ['.yml', '.yaml'],
+            },
+          },
+          {
+            description: 'JSON files',
+            accept: {
+              'application/json': ['.json'],
             },
           },
         ],
