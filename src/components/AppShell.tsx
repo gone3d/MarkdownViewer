@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { ViewMode, SidebarMode, MarkdownFile } from '../types/markdown';
 import { useFileTree } from '../hooks/useFileTree';
 import Sidebar from './Sidebar';
 import ContentArea from './ContentArea';
+import { YamlEditorRef } from './YamlEditor';
 
 interface AppShellProps {
   sidebarOpen: boolean;
@@ -34,6 +35,12 @@ const AppShell: React.FC<AppShellProps> = ({
   headerIds,
 }) => {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>('files');
+  const yamlEditorRef = useRef<YamlEditorRef | null>(null);
+
+  // Callback to scroll to a specific line in the YAML editor
+  const handleScrollToLine = useCallback((lineNumber: number) => {
+    yamlEditorRef.current?.scrollToLine(lineNumber);
+  }, []);
 
   return (
     <div className="flex-1 flex overflow-hidden bg-white dark:bg-gray-900">
@@ -48,6 +55,7 @@ const AppShell: React.FC<AppShellProps> = ({
             onFileOpen={onFileOpen}
             fileTree={fileTree}
             headerIds={headerIds}
+            onScrollToLine={handleScrollToLine}
           />
         </aside>
       )}
@@ -64,6 +72,7 @@ const AppShell: React.FC<AppShellProps> = ({
           onFileLoad={onFileLoad}
           headerIds={headerIds}
           className="h-full"
+          yamlEditorRef={yamlEditorRef}
         />
       </main>
     </div>

@@ -4,6 +4,23 @@
 /* Import markdown-specific styles */
 @import './markdown.css';
 
+/* Override highlight.js colors for better dark mode readability */
+.dark .hljs-string,
+.dark .hljs-doctag,
+.dark .hljs-regexp,
+.dark .hljs-addition,
+.dark .hljs-attribute,
+.dark .hljs-meta .hljs-string {
+  color: #79c0ff; /* Lighter blue for better readability in dark mode */
+}
+
+/* Links in code blocks - distinct color */
+.dark .hljs-link,
+.dark .hljs-symbol,
+.dark .hljs-bullet {
+  color: #a5d6ff; /* Even lighter blue/cyan for links */
+}
+
 /* Theme Toggle Styles */
 .theme-toggle {
   position: relative;
@@ -133,4 +150,198 @@
 
 .prose::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* ========================================
+   YAML Syntax Highlighting Styles
+   ======================================== */
+
+/* YAML Keys */
+.yaml-key {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+.dark .yaml-key {
+  color: #4fc3f7;
+}
+
+/* YAML Colon */
+.yaml-colon {
+  color: #666666;
+}
+
+.dark .yaml-colon {
+  color: #9e9e9e;
+}
+
+/* YAML String Values */
+.yaml-value-string {
+  color: #22863a;
+}
+
+.dark .yaml-value-string {
+  color: #7ec699;
+}
+
+/* YAML Number Values */
+.yaml-value-number {
+  color: #005cc5;
+}
+
+.dark .yaml-value-number {
+  color: #79b8ff;
+}
+
+/* YAML Boolean Values */
+.yaml-value-boolean {
+  color: #d73a49;
+  font-weight: 500;
+}
+
+.dark .yaml-value-boolean {
+  color: #f97583;
+}
+
+/* YAML Null Values */
+.yaml-value-null {
+  color: #6f42c1;
+  font-style: italic;
+}
+
+.dark .yaml-value-null {
+  color: #b392f0;
+}
+
+/* YAML List Markers */
+.yaml-list-marker {
+  color: #e36209;
+  font-weight: bold;
+}
+
+.dark .yaml-list-marker {
+  color: #ffab70;
+}
+
+/* YAML Anchors */
+.yaml-anchor {
+  color: #6f42c1;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.dark .yaml-anchor {
+  color: #b392f0;
+}
+
+/* YAML Aliases */
+.yaml-alias {
+  color: #6f42c1;
+  text-decoration: underline;
+}
+
+.dark .yaml-alias {
+  color: #b392f0;
+}
+
+/* YAML Comments */
+.yaml-comment {
+  color: #6a737d;
+  font-style: italic;
+}
+
+.dark .yaml-comment {
+  color: #8b949e;
+}
+
+/* YAML Document Separators */
+.yaml-document-separator {
+  color: #959da5;
+  font-weight: bold;
+}
+
+.dark .yaml-document-separator {
+  color: #6e7681;
+}
+
+/* YAML Quotes */
+.yaml-quote {
+  color: #22863a;
+}
+
+.dark .yaml-quote {
+  color: #7ec699;
+}
+
+/* YAML Multiline Indicators */
+.yaml-multiline-indicator {
+  color: #e36209;
+  font-weight: bold;
+}
+
+.dark .yaml-multiline-indicator {
+  color: #ffab70;
+}
+
+/* YAML Indent (visualizer - optional) */
+.yaml-indent {
+  opacity: 0.3;
+}
+
+/* YAML Syntax Error Highlighting */
+.yaml-error {
+  background-color: #ff00001a;
+  border-bottom: 2px solid #ff0000;
+}
+
+.dark .yaml-error {
+  background-color: #ff00002a;
+  border-bottom: 2px solid #ff6b6b;
+}
+
+/* ========================================
+   Line Numbers Styles
+   ======================================== */
+
+/* Container for editor with line numbers */
+.syntax-highlighted-editor-container {
+  position: relative;
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* Line numbers sidebar */
+.line-numbers-sidebar {
+  flex-shrink: 0;
+  width: 50px;
+  background: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  user-select: none;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 16px 0.5rem;
+  color: #9ca3af;
+}
+
+.dark .line-numbers-sidebar {
+  background: #1f2937;
+  border-right-color: #374151;
+  color: #6b7280;
+}
+
+/* Individual line number */
+.line-number {
+  text-align: right;
+  padding-right: 0.5rem;
+  min-height: 21px;
+  line-height: 1.5;
+}
+
+/* Adjust editor when line numbers are visible */
+.syntax-highlighted-editor.with-line-numbers {
+  flex: 1;
 }

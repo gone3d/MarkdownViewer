@@ -1,5 +1,5 @@
 import React from 'react';
-import { MarkdownFile, SidebarMode } from '../types/markdown';
+import { UniversalFile, SidebarMode } from '../types/markdown';
 import { Files, List, Search } from 'lucide-react';
 import { useFileTree } from '../hooks/useFileTree';
 import TableOfContents from './TableOfContents';
@@ -9,12 +9,13 @@ import RecentFiles from './RecentFiles';
 interface SidebarProps {
   mode: SidebarMode;
   onModeChange: (mode: SidebarMode) => void;
-  currentFile: MarkdownFile | null;
+  currentFile: UniversalFile | null;
   onFileSelect?: (filePath: string) => void;
   onFileOpen?: (filePath: string) => void;
   fileTree?: ReturnType<typeof useFileTree>;
   headerIds?: Map<string, string>;
   className?: string;
+  onScrollToLine?: (lineNumber: number) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -26,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   fileTree,
   headerIds,
   className = '',
+  onScrollToLine,
 }) => {
   const modes = [
     { key: 'files' as SidebarMode, label: 'Files', icon: Files },
@@ -91,6 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             currentFile={currentFile}
             headerIds={headerIds}
             className="h-full"
+            onScrollToLine={onScrollToLine}
           />
         )}
 

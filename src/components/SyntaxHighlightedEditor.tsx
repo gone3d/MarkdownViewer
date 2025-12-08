@@ -1,5 +1,6 @@
 import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { parseMarkdown } from '../utils/markdownParser';
+import { parseYaml } from '../utils/yamlParser';
 
 interface SyntaxHighlightedEditorProps {
   value: string;
@@ -10,6 +11,8 @@ interface SyntaxHighlightedEditorProps {
   readOnly?: boolean;
   placeholder?: string;
   className?: string;
+  language?: 'markdown' | 'yaml';
+  showLineNumbers?: boolean;
 }
 
 export interface SyntaxHighlightedEditorRef {
@@ -37,11 +40,14 @@ const SyntaxHighlightedEditor = forwardRef<
       readOnly = false,
       placeholder = '',
       className = '',
+      language = 'markdown',
+      showLineNumbers = false,
     },
     ref
   ) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const highlightRef = useRef<HTMLDivElement>(null);
+    const lineNumbersRef = useRef<HTMLDivElement>(null);
 
     // Expose textarea ref and methods
     useImperativeHandle(ref, () => ({
@@ -58,7 +64,7 @@ const SyntaxHighlightedEditor = forwardRef<
       }
     }, [value]);
 
-    // Synchronize scroll between textarea and highlight div
+    // Synchronize scroll between textarea, highlight div, and line numbers
     const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
       if (textareaRef.current && highlightRef.current) {
         // Use requestAnimationFrame to ensure smooth synchronization
@@ -66,6 +72,11 @@ const SyntaxHighlightedEditor = forwardRef<
           if (textareaRef.current && highlightRef.current) {
             highlightRef.current.scrollTop = textareaRef.current.scrollTop;
             highlightRef.current.scrollLeft = textareaRef.current.scrollLeft;
+
+            // Sync line numbers scroll (only vertical)
+            if (lineNumbersRef.current) {
+              lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
+            }
           }
         });
       }
@@ -102,7 +113,8 @@ const SyntaxHighlightedEditor = forwardRef<
       if (!content) return '';
 
       try {
-        const tokens = parseMarkdown(content);
+        // Use appropriate parser based on language
+        const tokens = language === 'yaml' ? parseYaml(content) : parseMarkdown(content);
 
         // Filter overlapping tokens
         const filteredTokens = filterOverlappingTokens(tokens);
@@ -119,7 +131,8 @@ const SyntaxHighlightedEditor = forwardRef<
 
           // Add the highlighted token
           const tokenContent = escapeHtml(token.content);
-          const cssClass = `md-${token.type}`;
+          // Use language-specific CSS prefix
+          const cssClass = language === 'yaml' ? `yaml-${token.type}` : `md-${token.type}`;
           result += `<span class="${cssClass}">${tokenContent}</span>`;
 
           lastIndex = token.end;
@@ -140,32 +153,61 @@ const SyntaxHighlightedEditor = forwardRef<
       }
     };
 
-    return (
-      <div className={`syntax-highlighted-editor ${className}`}>
-        {/* Syntax highlighting backdrop */}
-        <div
-          ref={highlightRef}
-          className="syntax-highlight-backdrop"
-          dangerouslySetInnerHTML={{
-            __html: getHighlightedContent(value),
-          }}
-        />
+    // Calculate line count
+    const lineCount = value.split('\n').length;
 
-        {/* Actual textarea for input */}
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          onKeyDown={onKeyDown}
-          onKeyUp={handleKeyUp}
-          onClick={handleClick}
-          onSelect={handleSelect}
-          onScroll={handleScroll}
-          readOnly={readOnly}
-          placeholder={placeholder}
-          className="syntax-editor-textarea"
-          spellCheck={false}
-        />
+    // Generate line numbers
+    const renderLineNumbers = () => {
+      const lines = [];
+      for (let i = 1; i <= lineCount; i++) {
+        lines.push(
+          <div key={i} className="line-number">
+            {i}
+          </div>
+        );
+      }
+      return lines;
+    };
+
+    return (
+      <div className={`syntax-highlighted-editor-container ${className}`}>
+        {/* Line Numbers Sidebar */}
+        {showLineNumbers && (
+          <div
+            ref={lineNumbersRef}
+            className="line-numbers-sidebar"
+          >
+            {renderLineNumbers()}
+          </div>
+        )}
+
+        {/* Editor Container */}
+        <div className={`syntax-highlighted-editor ${showLineNumbers ? 'with-line-numbers' : ''}`}>
+          {/* Syntax highlighting backdrop */}
+          <div
+            ref={highlightRef}
+            className="syntax-highlight-backdrop"
+            dangerouslySetInnerHTML={{
+              __html: getHighlightedContent(value),
+            }}
+          />
+
+          {/* Actual textarea for input */}
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            onKeyDown={onKeyDown}
+            onKeyUp={handleKeyUp}
+            onClick={handleClick}
+            onSelect={handleSelect}
+            onScroll={handleScroll}
+            readOnly={readOnly}
+            placeholder={placeholder}
+            className="syntax-editor-textarea"
+            spellCheck={false}
+          />
+        </div>
       </div>
     );
   }

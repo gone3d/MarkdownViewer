@@ -1,7 +1,9 @@
 {
-  "name": "markdownviewer",
+  "name": "datadoc",
+  "displayName": "DataDoc",
+  "description": "A modern viewer and editor for Markdown, YAML, and structured data files",
   "private": true,
-  "version": "1.1.9",
+  "version": "1.2.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,6 +16,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "js-yaml": "^4.1.1",
     "lucide-react": "^0.523.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -27,6 +30,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.3.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

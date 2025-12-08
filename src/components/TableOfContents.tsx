@@ -1,28 +1,56 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, FileText, Hash } from 'lucide-react';
-import { MarkdownFile } from '../types/markdown';
+import { ChevronDown, ChevronRight, FileText, Hash, MessageSquare } from 'lucide-react';
+import { UniversalFile } from '../types/markdown';
 import { extractTableOfContents, flattenTOC } from '../utils/tocExtractor';
+import YamlService from '../services/YamlService';
 
 interface TableOfContentsProps {
-  currentFile: MarkdownFile | null;
+  currentFile: UniversalFile | null;
   headerIds?: Map<string, string>;
   className?: string;
+  onScrollToLine?: (lineNumber: number) => void;
 }
 
 const TableOfContents: React.FC<TableOfContentsProps> = ({
   currentFile,
   headerIds,
   className = '',
+  onScrollToLine,
 }) => {
   const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
+  const yamlService = YamlService.getInstance();
 
-  // Extract TOC from current file using provided header IDs
+  // Check if current file is YAML
+  const isYamlFile = currentFile?.fileType === 'yaml';
+
+  // Extract TOC from current file
   const tocItems = useMemo(() => {
     if (!currentFile?.content) return [];
-    return extractTableOfContents(currentFile.content, headerIds);
-  }, [currentFile?.content, headerIds]);
 
-  const flatTocItems = useMemo(() => flattenTOC(tocItems), [tocItems]);
+    if (isYamlFile) {
+      // Extract YAML comments as outline items
+      const comments = yamlService.extractComments(currentFile.content);
+      return comments.map(comment => ({
+        id: comment.id,
+        text: comment.text,
+        level: comment.indent + 1, // Convert indent to level
+        anchor: comment.id,
+        children: [],
+        depth: comment.indent,
+        lineNumber: comment.line, // Add line number for scrolling
+      }));
+    }
+
+    return extractTableOfContents(currentFile.content, headerIds);
+  }, [currentFile?.content, currentFile?.fileType, headerIds, isYamlFile]);
+
+  const flatTocItems = useMemo(() => {
+    if (isYamlFile) {
+      // For YAML, items are already flat
+      return tocItems;
+    }
+    return flattenTOC(tocItems);
+  }, [tocItems, isYamlFile]);
 
   // Handle item collapse/expand
   const toggleCollapse = (id: string, hasChildren: boolean) => {
@@ -40,7 +68,14 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
   };
 
   // Handle click to scroll to section
-  const handleItemClick = (id: string) => {
+  const handleItemClick = (id: string, lineNumber?: number) => {
+    // For YAML files in editor mode, scroll to line number
+    if (isYamlFile && lineNumber && onScrollToLine) {
+      onScrollToLine(lineNumber);
+      return;
+    }
+
+    // For Markdown or YAML viewer mode, scroll to element
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({
@@ -63,14 +98,20 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
     );
   }
 
-  // No headers found
+  // No headers/comments found
   if (tocItems.length === 0) {
     return (
       <div
         className={`flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400 ${className}`}
       >
-        <Hash className="h-8 w-8 mb-2" />
-        <p className="text-sm text-center">No headers found</p>
+        {isYamlFile ? (
+          <MessageSquare className="h-8 w-8 mb-2" />
+        ) : (
+          <Hash className="h-8 w-8 mb-2" />
+        )}
+        <p className="text-sm text-center">
+          {isYamlFile ? 'No comments found' : 'No headers found'}
+        </p>
       </div>
     );
   }
@@ -80,8 +121,12 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
       {/* Header */}
       <div className="sticky top-0 bg-gray-50 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-          <Hash className="h-4 w-4" />
-          Table of Contents
+          {isYamlFile ? (
+            <MessageSquare className="h-4 w-4" />
+          ) : (
+            <Hash className="h-4 w-4" />
+          )}
+          {isYamlFile ? 'Outline (Comments)' : 'Table of Contents'}
         </h3>
       </div>
 
@@ -114,7 +159,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
                   item.depth > 0 ? 'ml-' + item.depth * 4 : ''
                 }`}
                 style={{ marginLeft: `${item.depth * 16}px` }}
-                onClick={() => handleItemClick(item.id)}
+                onClick={() => handleItemClick(item.id, (item as any).lineNumber)}
               >
                 {hasChildren && (
                   <button
@@ -133,6 +178,13 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({
                 )}
 
                 {!hasChildren && <div className="w-4 flex-shrink-0" />}
+
+                {/* Show line number for YAML comments */}
+                {isYamlFile && (item as any).lineNumber && (
+                  <span className="text-xs font-mono text-gray-400 dark:text-gray-500 mr-2 flex-shrink-0">
+                    {(item as any).lineNumber}
+                  </span>
+                )}
 
                 <div
                   className={`flex-1 text-xs leading-tight truncate transition-colors ${

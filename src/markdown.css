@@ -175,6 +175,12 @@
   @apply prose-tr:hover:bg-gray-50 dark:prose-tr:hover:bg-gray-800;
 }
 
+/* Table text color - lighter in dark mode */
+.dark .markdown-content table td,
+.dark .markdown-content table th {
+  color: #d1d5db; /* gray-300 for better readability */
+}
+
 /* Images */
 .markdown-content {
   @apply prose-img:rounded-lg prose-img:shadow-md prose-img:my-6;

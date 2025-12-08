@@ -1,4 +1,5 @@
-import { MarkdownFile, MarkdownFolder } from '../types/markdown';
+import { MarkdownFile, MarkdownFolder, FileType, UniversalFile } from '../types/markdown';
+import { YamlMetadata } from '../types/yaml';
 
 export class FileValidationError extends Error {
   constructor(
@@ -25,7 +26,7 @@ class FileService {
   private static instance: FileService;
   private fileSystemSupported: boolean;
   private readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  private readonly SUPPORTED_EXTENSIONS = ['.md', '.markdown', '.txt', '.text'];
+  private readonly SUPPORTED_EXTENSIONS = ['.md', '.markdown', '.txt', '.text', '.yml', '.yaml'];
 
   constructor() {
     this.fileSystemSupported = 'showOpenFilePicker' in window;
@@ -71,7 +72,14 @@ class FileService {
     return lastDot === -1 ? '' : filename.substring(lastDot).toLowerCase();
   }
 
-  private extractMetadata(content: string): Record<string, any> {
+  private getFileType(filename: string): FileType {
+    const extension = this.getFileExtension(filename);
+    if (['.yml', '.yaml'].includes(extension)) return 'yaml';
+    if (['.md', '.markdown'].includes(extension)) return 'markdown';
+    return 'text';
+  }
+
+  private extractMarkdownMetadata(content: string): Record<string, any> {
     const metadata: Record<string, any> = {};
 
     // Word count
@@ -111,10 +119,46 @@ class FileService {
     return metadata;
   }
 
-  public async openFileFromHandle(fileHandle: FileSystemFileHandle): Promise<MarkdownFile> {
+  private extractYamlMetadata(content: string): YamlMetadata {
+    // Basic metadata - will be enhanced by YamlService later
+    const metadata: YamlMetadata = {
+      keyCount: 0,
+      maxDepth: 0,
+      arrayCount: 0,
+      objectCount: 0,
+      lineCount: content.split('\n').length,
+      charCount: content.length,
+      isValid: true,
+      validationErrors: [],
+    };
+
+    // Simple key count (lines with colons that aren't in strings)
+    const lines = content.split('\n');
+    metadata.keyCount = lines.filter(line => {
+      const trimmed = line.trim();
+      return trimmed && !trimmed.startsWith('#') && trimmed.includes(':');
+    }).length;
+
+    // Simple array count (lines starting with -)
+    metadata.arrayCount = lines.filter(line => {
+      const trimmed = line.trim();
+      return trimmed.startsWith('- ');
+    }).length;
+
+    return metadata;
+  }
+
+  private extractMetadata(content: string, fileType: FileType): Record<string, any> | YamlMetadata {
+    if (fileType === 'yaml') {
+      return this.extractYamlMetadata(content);
+    }
+    return this.extractMarkdownMetadata(content);
+  }
+
+  public async openFileFromHandle(fileHandle: FileSystemFileHandle): Promise<UniversalFile> {
     // Get the File object from the fileHandle
     const file = await fileHandle.getFile();
-    
+
     // Validate the file
     try {
       this.validateFile(file);
@@ -126,9 +170,10 @@ class FileService {
       );
     }
 
-    // Read content and create MarkdownFile
+    // Read content and create UniversalFile
     const content = await file.text();
-    const metadata = this.extractMetadata(content);
+    const fileType = this.getFileType(file.name);
+    const metadata = this.extractMetadata(content, fileType);
 
     return {
       id: crypto.randomUUID(),
@@ -140,10 +185,11 @@ class FileService {
       created: new Date(file.lastModified),
       metadata,
       fileHandle, // Store the fileHandle for later saving
+      fileType,
     };
   }
 
-  public async openFile(): Promise<MarkdownFile | null> {
+  public async openFile(): Promise<UniversalFile | null> {
     if (!this.fileSystemSupported) {
       return this.openFileFallback();
     }
@@ -152,14 +198,30 @@ class FileService {
       const [fileHandle] = await (window as any).showOpenFilePicker({
         types: [
           {
+            description: 'All Supported Files',
+            accept: {
+              'text/markdown': ['.md', '.markdown'],
+              'text/plain': ['.txt', '.text'],
+              'text/yaml': ['.yml', '.yaml'],
+              'application/x-yaml': ['.yml', '.yaml'],
+            },
+          },
+          {
             description: 'Markdown files',
             accept: {
               'text/markdown': ['.md', '.markdown'],
               'text/plain': ['.txt', '.text'],
             },
           },
+          {
+            description: 'YAML files',
+            accept: {
+              'text/yaml': ['.yml', '.yaml'],
+              'application/x-yaml': ['.yml', '.yaml'],
+            },
+          },
         ],
-        excludeAcceptAllOption: true,
+        excludeAcceptAllOption: false,
         multiple: false,
       });
 
@@ -177,7 +239,8 @@ class FileService {
       }
 
       const content = await file.text();
-      const metadata = this.extractMetadata(content);
+      const fileType = this.getFileType(file.name);
+      const metadata = this.extractMetadata(content, fileType);
 
       return {
         id: crypto.randomUUID(),
@@ -189,6 +252,7 @@ class FileService {
         created: new Date(file.lastModified),
         metadata,
         fileHandle, // Store the fileHandle for later saving
+        fileType,
       };
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
@@ -210,11 +274,11 @@ class FileService {
     }
   }
 
-  private async openFileFallback(): Promise<MarkdownFile | null> {
+  private async openFileFallback(): Promise<UniversalFile | null> {
     return new Promise((resolve, reject) => {
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = '.md,.markdown,.txt,.text';
+      input.accept = '.md,.markdown,.txt,.text,.yml,.yaml';
 
       input.onchange = async event => {
         try {
@@ -228,7 +292,8 @@ class FileService {
           this.validateFile(file);
 
           const content = await file.text();
-          const metadata = this.extractMetadata(content);
+          const fileType = this.getFileType(file.name);
+          const metadata = this.extractMetadata(content, fileType);
 
           resolve({
             id: crypto.randomUUID(),
@@ -239,6 +304,7 @@ class FileService {
             lastModified: new Date(file.lastModified),
             created: new Date(file.lastModified),
             metadata,
+            fileType,
           });
         } catch (error) {
           if (error instanceof FileValidationError) {
@@ -287,9 +353,10 @@ class FileService {
       : directoryHandle.name;
 
     for await (const [name, handle] of directoryHandle.entries()) {
-      if (handle.kind === 'file' && this.isMarkdownFile(name)) {
+      if (handle.kind === 'file' && this.isSupportedFile(name)) {
         const file = await handle.getFile();
         const content = await file.text();
+        const fileType = this.getFileType(file.name);
 
         files.push({
           id: crypto.randomUUID(),
@@ -299,7 +366,8 @@ class FileService {
           size: file.size,
           lastModified: new Date(file.lastModified),
           created: new Date(file.lastModified),
-        });
+          fileType,
+        } as UniversalFile);
       } else if (handle.kind === 'directory') {
         const subfolder = await this.readDirectory(handle, currentPath);
         subfolders.push(subfolder);
@@ -316,20 +384,23 @@ class FileService {
     };
   }
 
-  private isMarkdownFile(filename: string): boolean {
-    const extensions = ['.md', '.markdown', '.txt'];
+  private isSupportedFile(filename: string): boolean {
+    const extensions = ['.md', '.markdown', '.txt', '.yml', '.yaml'];
     return extensions.some(ext => filename.toLowerCase().endsWith(ext));
   }
 
   /**
-   * Process a File object into a MarkdownFile
+   * Process a File object into a UniversalFile
    */
-  public async processFile(file: File, content: string): Promise<MarkdownFile> {
+  public async processFile(file: File, content: string): Promise<UniversalFile> {
     // Validate file
     this.validateFile(file);
 
+    // Detect file type
+    const fileType = this.getFileType(file.name);
+
     // Extract metadata
-    const metadata = this.extractMetadata(content);
+    const metadata = this.extractMetadata(content, fileType);
 
     return {
       id: crypto.randomUUID(),
@@ -340,6 +411,7 @@ class FileService {
       lastModified: new Date(file.lastModified),
       created: new Date(file.lastModified), // Use lastModified as created date
       metadata,
+      fileType,
     };
   }
 
@@ -396,6 +468,13 @@ class FileService {
             accept: {
               'text/markdown': ['.md', '.markdown'],
               'text/plain': ['.txt'],
+            },
+          },
+          {
+            description: 'YAML files',
+            accept: {
+              'text/yaml': ['.yml', '.yaml'],
+              'application/x-yaml': ['.yml', '.yaml'],
             },
           },
         ],

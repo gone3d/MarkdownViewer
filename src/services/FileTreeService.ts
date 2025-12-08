@@ -113,10 +113,10 @@ export class FileTreeService {
   }
 
   /**
-   * Check if file is a markdown file
+   * Check if file is a supported file (markdown or YAML)
    */
   private isMarkdownFile(fileName: string): boolean {
-    const extensions = ['.md', '.markdown', '.mdown', '.mkd', '.mkdn', '.txt'];
+    const extensions = ['.md', '.markdown', '.mdown', '.mkd', '.mkdn', '.txt', '.yml', '.yaml'];
     return extensions.some(ext => fileName.toLowerCase().endsWith(ext));
   }
 

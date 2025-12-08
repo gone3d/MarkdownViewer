@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AppSettings, DEFAULT_SETTINGS, SettingsContextType } from '../types/settings';
 
-const SETTINGS_STORAGE_KEY = 'markdownviewer-settings';
+const SETTINGS_STORAGE_KEY = 'datadoc-settings';
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 

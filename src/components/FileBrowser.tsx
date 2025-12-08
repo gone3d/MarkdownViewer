@@ -9,7 +9,6 @@ import {
   Loader2,
   AlertCircle,
   HardDrive,
-  ExternalLink,
   Plus,
   Edit3,
   Trash2,
@@ -80,19 +79,6 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
         onFileOpen(node);
       }
     }
-  };
-
-  // Handle file open
-  const handleFileOpen = (node: FileTreeNode, event: React.MouseEvent) => {
-    event.stopPropagation();
-    if (node.type === 'file' && node.isMarkdown && onFileOpen) {
-      onFileOpen(node);
-    }
-  };
-
-  // Check if file can be opened
-  const canOpenFile = (node: FileTreeNode): boolean => {
-    return node.type === 'file' && Boolean(node.isMarkdown);
   };
 
   // Handle folder click
@@ -360,17 +346,6 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
                             : 'text-gray-500 dark:text-gray-400'
                       }`}
                     />
-
-                    {/* Open button for selected markdown files */}
-                    {isSelected && canOpenFile(node) && (
-                      <button
-                        onClick={e => handleFileOpen(node, e)}
-                        className="p-1 hover:bg-primary-200 dark:hover:bg-primary-800 text-primary-600 dark:text-primary-400 rounded transition-colors flex-shrink-0"
-                        title="Open file"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </button>
-                    )}
 
                     {/* Name - editable if in edit mode */}
                     {editingNode === node.id ? (

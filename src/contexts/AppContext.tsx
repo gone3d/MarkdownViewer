@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode } from 'react';
-import { MarkdownFile, ViewMode } from '../types/markdown';
+import { MarkdownFile, ViewMode, UniversalFile } from '../types/markdown';
 import FileService, {
   FileValidationError,
   FileOperationError,
@@ -8,7 +8,7 @@ import { addRecentFile, recentFileToMarkdownFile, getFileHandleFromCache, type R
 
 // Extended file state with additional metadata
 export interface FileState {
-  file: MarkdownFile;
+  file: UniversalFile;
   originalContent: string; // Track original content for change detection
   hasUnsavedChanges: boolean;
   lastSaveTime: Date | null;
@@ -23,7 +23,7 @@ interface AppState {
   viewMode: ViewMode;
   sidebarOpen: boolean;
   theme: 'light' | 'dark';
-  recentFiles: MarkdownFile[];
+  recentFiles: UniversalFile[];
   globalLoading: boolean;
   globalError: string | null;
 }
@@ -39,7 +39,7 @@ type AppAction =
   | { type: 'SET_VIEW_MODE'; payload: ViewMode }
   | { type: 'SET_SIDEBAR_OPEN'; payload: boolean }
   | { type: 'SET_THEME'; payload: 'light' | 'dark' }
-  | { type: 'ADD_RECENT_FILE'; payload: MarkdownFile }
+  | { type: 'ADD_RECENT_FILE'; payload: UniversalFile }
   | { type: 'SET_GLOBAL_LOADING'; payload: boolean }
   | { type: 'SET_GLOBAL_ERROR'; payload: string | null }
   | { type: 'CLEAR_CURRENT_FILE' };
@@ -213,6 +213,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         lastModified: action.payload.lastModified,
         metadata: action.payload.metadata,
         fileHandle: action.payload.fileHandle,
+        fileType: action.payload.fileType,
       });
       
       // Keep the state logic for backward compatibility
@@ -290,6 +291,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         };
         dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
         dispatch({ type: 'ADD_RECENT_FILE', payload: markdownFile });
+
+        // Automatically switch to editor mode for YAML files
+        if (markdownFile.fileType === 'yaml') {
+          dispatch({ type: 'SET_VIEW_MODE', payload: 'editor' });
+        }
       }
     } catch (err) {
       let errorMessage = 'Failed to open file';
@@ -312,7 +318,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     try {
       const markdownFile = await fileService.openFileFromHandle(fileHandle);
-      
+
       const fileState: FileState = {
         file: markdownFile,
         originalContent: markdownFile.content,
@@ -324,6 +330,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       };
       dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
       dispatch({ type: 'ADD_RECENT_FILE', payload: markdownFile });
+
+      // Automatically switch to editor mode for YAML files
+      if (markdownFile.fileType === 'yaml') {
+        dispatch({ type: 'SET_VIEW_MODE', payload: 'editor' });
+      }
     } catch (err) {
       let errorMessage = 'Failed to open file from handle';
       if (err instanceof FileValidationError) {
@@ -369,7 +380,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       
       // File unchanged or no fileHandle - use fast cached content
       const markdownFile = recentFileToMarkdownFile(recentFile);
-      
+
       const fileState: FileState = {
         file: markdownFile,
         originalContent: markdownFile.content,
@@ -380,7 +391,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         error: null,
       };
       dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
-      
+
       // Update the recent file timestamp (move to top of list)
       addRecentFile({
         name: recentFile.name,
@@ -390,7 +401,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         lastModified: new Date(recentFile.lastModified),
         metadata: recentFile.metadata,
         fileHandle: recentFile.fileHandle,
+        fileType: recentFile.fileType || markdownFile.fileType,
       });
+
+      // Automatically switch to editor mode for YAML files
+      if (markdownFile.fileType === 'yaml') {
+        dispatch({ type: 'SET_VIEW_MODE', payload: 'editor' });
+      }
     } catch (err) {
       let errorMessage = 'Failed to open recent file';
       if (err instanceof Error) {
@@ -420,6 +437,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       };
       dispatch({ type: 'SET_CURRENT_FILE', payload: fileState });
       dispatch({ type: 'ADD_RECENT_FILE', payload: markdownFile });
+
+      // Automatically switch to editor mode for YAML files
+      if (markdownFile.fileType === 'yaml') {
+        dispatch({ type: 'SET_VIEW_MODE', payload: 'editor' });
+      }
     } catch (err) {
       let errorMessage = 'Failed to load file';
       if (err instanceof FileValidationError) {
