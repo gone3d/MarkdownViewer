@@ -4,6 +4,8 @@ import MarkdownViewer from './MarkdownViewer';
 import MarkdownEditor from './MarkdownEditor';
 import YamlEditor, { YamlEditorRef } from './YamlEditor';
 import YamlViewer from './YamlViewer';
+import JsonEditor, { JsonEditorRef } from './JsonEditor';
+import JsonViewer from './JsonViewer';
 import { FileText, AlertCircle } from 'lucide-react';
 
 interface ContentAreaProps {
@@ -17,6 +19,7 @@ interface ContentAreaProps {
   className?: string;
   headerIds?: Map<string, string>;
   yamlEditorRef?: React.RefObject<YamlEditorRef>;
+  jsonEditorRef?: React.RefObject<JsonEditorRef>;
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({
@@ -30,6 +33,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   className = '',
   headerIds,
   yamlEditorRef: externalYamlEditorRef,
+  jsonEditorRef: externalJsonEditorRef,
 }) => {
   // Local state for editor content (for split view synchronization)
   const [editorContent, setEditorContent] = useState<string>('');
@@ -41,10 +45,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   const editorRef = useRef<{ getScrollElement: () => HTMLElement | null } | null>(null);
   const viewerRef = useRef<{ getScrollElement: () => HTMLElement | null } | null>(null);
   const internalYamlEditorRef = useRef<YamlEditorRef | null>(null);
+  const internalJsonEditorRef = useRef<JsonEditorRef | null>(null);
   const isScrollingSyncRef = useRef<boolean>(false);
 
   // Use external ref if provided, otherwise use internal
   const yamlEditorRef = externalYamlEditorRef || internalYamlEditorRef;
+  const jsonEditorRef = externalJsonEditorRef || internalJsonEditorRef;
 
   // Initialize editor content when file changes
   useEffect(() => {
@@ -214,11 +220,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     const file = files[0];
     
     // Check if it's a valid file
-    const validExtensions = ['.md', '.markdown', '.yml', '.yaml', '.txt'];
+    const validExtensions = ['.md', '.markdown', '.yml', '.yaml', '.json', '.txt'];
     const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
 
     if (!validExtensions.includes(fileExtension)) {
-      console.warn('Invalid file type. Please drop a supported file (.md, .markdown, .yml, .yaml, .txt)');
+      console.warn('Invalid file type. Please drop a supported file (.md, .markdown, .yml, .yaml, .json, .txt)');
       return;
     }
 
@@ -274,7 +280,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             <div className="text-center text-blue-600 dark:text-blue-400">
               <FileText className="h-16 w-16 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">Drop your file here</h3>
-              <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
+              <p>Supports .md, .markdown, .yml, .yaml, .json, and .txt files</p>
             </div>
           </div>
         )}
@@ -284,7 +290,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           <h2 className="text-2xl font-bold mb-4">Welcome to DataDoc</h2>
           <p className="mb-6 leading-relaxed">
             Select a file from the sidebar, open a file, or <span className="font-semibold text-blue-600 dark:text-blue-400">drag & drop a file here</span> to start
-            viewing and editing your markdown and YAML content with live preview,
+            viewing and editing your markdown, YAML, and JSON content with live preview,
             syntax highlighting, and advanced editing features.
           </p>
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-left">
@@ -292,6 +298,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             <ul className="text-sm space-y-1">
               <li>• .md, .markdown (Markdown)</li>
               <li>• .yml, .yaml (YAML)</li>
+              <li>• .json (JSON)</li>
               <li>• .txt (Plain text)</li>
             </ul>
           </div>
@@ -302,6 +309,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
   // Determine file type for conditional rendering
   const isYamlFile = currentFile?.fileType === 'yaml';
+  const isJsonFile = currentFile?.fileType === 'json';
 
   // Render based on view mode
   switch (viewMode) {
@@ -320,13 +328,15 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               <div className="text-center text-blue-600 dark:text-blue-400">
                 <FileText className="h-16 w-16 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
-                <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
+                <p>Supports .md, .markdown, .yml, .yaml, .json, and .txt files</p>
               </div>
             </div>
           )}
 
           {isYamlFile ? (
             <YamlViewer file={currentFile} />
+          ) : isJsonFile ? (
+            <JsonViewer file={currentFile} />
           ) : (
             <MarkdownViewer
               file={currentFile}
@@ -352,7 +362,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               <div className="text-center text-blue-600 dark:text-blue-400">
                 <FileText className="h-16 w-16 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
-                <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
+                <p>Supports .md, .markdown, .yml, .yaml, .json, and .txt files</p>
               </div>
             </div>
           )}
@@ -360,6 +370,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           {isYamlFile ? (
             <YamlEditor
               ref={yamlEditorRef}
+              file={currentFile}
+              onChange={handleContentChange}
+              onSave={handleSave}
+            />
+          ) : isJsonFile ? (
+            <JsonEditor
+              ref={jsonEditorRef}
               file={currentFile}
               onChange={handleContentChange}
               onSave={handleSave}
@@ -376,7 +393,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       );
 
     case 'split':
-      // YAML files don't support split view, fall back to editor
+      // YAML and JSON files don't support split view, fall back to editor
       if (isYamlFile) {
         return (
           <div
@@ -392,13 +409,43 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 <div className="text-center text-blue-600 dark:text-blue-400">
                   <FileText className="h-16 w-16 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
-                  <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
+                  <p>Supports .md, .markdown, .yml, .yaml, .json, and .txt files</p>
                 </div>
               </div>
             )}
 
             <YamlEditor
               ref={yamlEditorRef}
+              file={currentFile}
+              onChange={handleContentChange}
+              onSave={handleSave}
+            />
+          </div>
+        );
+      }
+
+      if (isJsonFile) {
+        return (
+          <div
+            className={`h-full ${className} relative`}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            {/* Drag overlay */}
+            {isDragOver && (
+              <div className="absolute inset-0 bg-blue-500/20 border-2 border-dashed border-blue-500 dark:border-blue-400 flex items-center justify-center z-20">
+                <div className="text-center text-blue-600 dark:text-blue-400">
+                  <FileText className="h-16 w-16 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
+                  <p>Supports .md, .markdown, .yml, .yaml, .json, and .txt files</p>
+                </div>
+              </div>
+            )}
+
+            <JsonEditor
+              ref={jsonEditorRef}
               file={currentFile}
               onChange={handleContentChange}
               onSave={handleSave}
@@ -423,7 +470,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               <div className="text-center text-blue-600 dark:text-blue-400">
                 <FileText className="h-16 w-16 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Drop to replace current file</h3>
-                <p>Supports .md, .markdown, .yml, .yaml, and .txt files</p>
+                <p>Supports .md, .markdown, .yml, .yaml, .json, and .txt files</p>
               </div>
             </div>
           )}
@@ -473,6 +520,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         <div className={`h-full ${className}`}>
           {isYamlFile ? (
             <YamlViewer file={currentFile} />
+          ) : isJsonFile ? (
+            <JsonViewer file={currentFile} />
           ) : (
             <MarkdownViewer
               file={currentFile}

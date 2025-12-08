@@ -1,6 +1,7 @@
 import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { parseMarkdown } from '../utils/markdownParser';
 import { parseYaml } from '../utils/yamlParser';
+import { JsonParser } from '../utils/jsonParser';
 
 interface SyntaxHighlightedEditorProps {
   value: string;
@@ -11,7 +12,7 @@ interface SyntaxHighlightedEditorProps {
   readOnly?: boolean;
   placeholder?: string;
   className?: string;
-  language?: 'markdown' | 'yaml';
+  language?: 'markdown' | 'yaml' | 'json';
   showLineNumbers?: boolean;
 }
 
@@ -114,7 +115,15 @@ const SyntaxHighlightedEditor = forwardRef<
 
       try {
         // Use appropriate parser based on language
-        const tokens = language === 'yaml' ? parseYaml(content) : parseMarkdown(content);
+        let tokens;
+        if (language === 'yaml') {
+          tokens = parseYaml(content);
+        } else if (language === 'json') {
+          const jsonParser = new JsonParser(content);
+          tokens = jsonParser.parse();
+        } else {
+          tokens = parseMarkdown(content);
+        }
 
         // Filter overlapping tokens
         const filteredTokens = filterOverlappingTokens(tokens);
@@ -132,7 +141,14 @@ const SyntaxHighlightedEditor = forwardRef<
           // Add the highlighted token
           const tokenContent = escapeHtml(token.content);
           // Use language-specific CSS prefix
-          const cssClass = language === 'yaml' ? `yaml-${token.type}` : `md-${token.type}`;
+          let cssClass;
+          if (language === 'yaml') {
+            cssClass = `yaml-${token.type}`;
+          } else if (language === 'json') {
+            cssClass = `json-${token.type}`;
+          } else {
+            cssClass = `md-${token.type}`;
+          }
           result += `<span class="${cssClass}">${tokenContent}</span>`;
 
           lastIndex = token.end;

@@ -56,7 +56,7 @@ export type ViewMode = 'viewer' | 'editor' | 'split';
 export type SidebarMode = 'files' | 'toc' | 'search' | 'hidden';
 
 // File type definitions for multi-format support
-export type FileType = 'markdown' | 'yaml' | 'text';
+export type FileType = 'markdown' | 'yaml' | 'json' | 'text';
 
 // Universal file interface that supports multiple file types
 export interface UniversalFile extends MarkdownFile {
