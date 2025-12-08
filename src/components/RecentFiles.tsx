@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Clock,
   FileText,
+  Braces,
+  FileCode,
   X,
   Trash2,
   ChevronDown,
@@ -29,6 +31,34 @@ const RecentFiles: React.FC<RecentFilesProps> = ({
   const [recentFiles, setRecentFiles] = useState<RecentFile[]>([]);
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const { openFileFromHandle, openRecentFile } = useAppContext();
+
+  // Get file type and icon/color based on extension
+  const getFileDisplay = (filename: string) => {
+    const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+
+    if (['.md', '.markdown'].includes(extension)) {
+      return {
+        icon: FileText,
+        color: 'text-green-600 dark:text-green-400'
+      };
+    }
+    if (['.json'].includes(extension)) {
+      return {
+        icon: Braces,
+        color: 'text-blue-600 dark:text-blue-400'
+      };
+    }
+    if (['.yml', '.yaml'].includes(extension)) {
+      return {
+        icon: FileCode,
+        color: 'text-purple-600 dark:text-purple-400'
+      };
+    }
+    return {
+      icon: FileText,
+      color: 'text-gray-500 dark:text-gray-400'
+    };
+  };
 
   // Load recent files on mount and set up listeners
   useEffect(() => {
@@ -136,33 +166,36 @@ const RecentFiles: React.FC<RecentFilesProps> = ({
               </p>
             </div>
           ) : (
-            recentFiles.map((file) => (
-              <div
-                key={file.id}
-                className="group flex items-center gap-2 px-4 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                onClick={() => handleFileClick(file)}
-                title={`${file.path}\nLast opened: ${formatLastOpened(file.lastOpened)}${
-                  file.size ? `\nSize: ${formatFileSize(file.size)}` : ''
-                }\n✓ Opens directly from stored content`}
-              >
-                {/* File icon - always green since we store full content */}
-                <FileText className="h-3 w-3 flex-shrink-0 text-green-600 dark:text-green-400" />
-                
-                {/* File name */}
-                <div className="flex-1 min-w-0 text-sm text-gray-900 dark:text-gray-100 truncate">
-                  {file.name}
-                </div>
-
-                {/* Remove button */}
-                <button
-                  onClick={(e) => handleRemoveFile(e, file.id)}
-                  className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all flex-shrink-0"
-                  title="Remove from recent files"
+            recentFiles.map((file) => {
+              const { icon: FileIcon, color } = getFileDisplay(file.name);
+              return (
+                <div
+                  key={file.id}
+                  className="group flex items-center gap-2 px-4 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  onClick={() => handleFileClick(file)}
+                  title={`${file.path}\nLast opened: ${formatLastOpened(file.lastOpened)}${
+                    file.size ? `\nSize: ${formatFileSize(file.size)}` : ''
+                  }\n✓ Opens directly from stored content`}
                 >
-                  <X className="h-2.5 w-2.5 text-gray-500" />
-                </button>
-              </div>
-            ))
+                  {/* File icon - color-coded by file type */}
+                  <FileIcon className={`h-3 w-3 flex-shrink-0 ${color}`} />
+
+                  {/* File name */}
+                  <div className="flex-1 min-w-0 text-sm text-gray-900 dark:text-gray-100 truncate">
+                    {file.name}
+                  </div>
+
+                  {/* Remove button */}
+                  <button
+                    onClick={(e) => handleRemoveFile(e, file.id)}
+                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all flex-shrink-0"
+                    title="Remove from recent files"
+                  >
+                    <X className="h-2.5 w-2.5 text-gray-500" />
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
       )}
