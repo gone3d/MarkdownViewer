@@ -191,12 +191,30 @@ const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
-        {/* File Type Indicator for YAML */}
+        {/* File Type Indicators */}
         {currentFileType === 'yaml' && state.currentFile && (
           <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
             <FileText className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
               YAML Editor
+            </span>
+          </div>
+        )}
+
+        {currentFileType === 'json' && state.currentFile && (
+          <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+            <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              JSON Editor
+            </span>
+          </div>
+        )}
+
+        {currentFileType === 'markdown' && state.currentFile && (
+          <div className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-lg">
+            <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <span className="text-sm font-medium text-green-700 dark:text-green-300">
+              Markdown Editor
             </span>
           </div>
         )}

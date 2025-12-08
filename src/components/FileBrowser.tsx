@@ -6,6 +6,8 @@ import {
   FolderOpen,
   File,
   FileText,
+  Braces,
+  FileCode,
   Loader2,
   AlertCircle,
   HardDrive,
@@ -88,6 +90,15 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
     }
   };
 
+  // Get file type from extension
+  const getFileType = (filename: string): 'markdown' | 'yaml' | 'json' | 'text' => {
+    const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    if (['.md', '.markdown'].includes(extension)) return 'markdown';
+    if (['.yml', '.yaml'].includes(extension)) return 'yaml';
+    if (['.json'].includes(extension)) return 'json';
+    return 'text';
+  };
+
   // Get file icon
   const getFileIcon = (node: FileTreeNode) => {
     if (node.type === 'folder') {
@@ -95,7 +106,11 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
       return isExpanded ? FolderOpen : Folder;
     }
 
-    return node.isMarkdown ? FileText : File;
+    const fileType = getFileType(node.name);
+    if (fileType === 'markdown') return FileText;
+    if (fileType === 'json') return Braces;
+    if (fileType === 'yaml') return FileCode;
+    return File;
   };
 
   // Format file size
@@ -341,9 +356,13 @@ const FileBrowser: React.FC<FileBrowserProps> = ({
                       className={`h-4 w-4 flex-shrink-0 ${
                         node.type === 'folder'
                           ? 'text-blue-600 dark:text-blue-400'
-                          : node.isMarkdown
-                            ? 'text-green-600 dark:text-green-400'
-                            : 'text-gray-500 dark:text-gray-400'
+                          : (() => {
+                              const fileType = getFileType(node.name);
+                              if (fileType === 'markdown') return 'text-green-600 dark:text-green-400';
+                              if (fileType === 'json') return 'text-blue-600 dark:text-blue-400';
+                              if (fileType === 'yaml') return 'text-purple-600 dark:text-purple-400';
+                              return 'text-gray-500 dark:text-gray-400';
+                            })()
                       }`}
                     />
 
